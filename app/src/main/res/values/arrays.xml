@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="FileTypeToDownload">
+        <item name="mobi">Mobi</item>
+        <item name="epub">ePub</item>
+        <item name="text">Text</item>
+    </string-array>
+    <string-array name="DownloadorSendEmail">
+        <item name="download">Download</item>
+        <item name="email">Send Email</item>
+    </string-array>
+</resources>

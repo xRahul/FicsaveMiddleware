@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="Ficsave Page">
+
+        <ListPreference
+            android:defaultValue="mobi"
+            android:title="Choose File Type"
+            android:entries="@array/FileTypeToDownload"
+            android:entryValues="@array/FileTypeToDownload"
+            android:key="list_preference_1" />
+        <ListPreference
+            android:defaultValue="download"
+            android:title="Download or Send Email"
+            android:entries="@array/DownloadorSendEmail"
+            android:entryValues="@array/DownloadorSendEmail"
+            android:key="list_preference_1" />
+    </PreferenceCategory>
+</PreferenceScreen>
