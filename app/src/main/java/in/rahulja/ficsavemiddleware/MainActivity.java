@@ -6,22 +6,17 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.Patterns;
-import android.webkit.ValueCallback;
-import android.webkit.WebSettings;
+import android.view.Window;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.Toast;
 
 import java.util.regex.Matcher;
-
-import static android.widget.Toast.LENGTH_SHORT;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -34,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.activity_main);
 
         mActivity = this;
@@ -55,40 +51,9 @@ public class MainActivity extends AppCompatActivity {
         final WebView mWebview = (WebView) findViewById(R.id.main_webview);
 
         if (mWebview != null) {
-            mWebview.setDownloadListener(new MyDownloadListener(this));
-
-            mWebview.setWebViewClient(new WebViewClient() {
-                public void onPageFinished(WebView view, String url) {
-                    if (!url.contains("http://ficsave.xyz/download/") && !ficUrl.isEmpty()) {
-                        final String jsString =
-                                "document.getElementById('url').value = \"" + ficUrl + "\"; " +
-                                        "document.getElementsByClassName('select-dropdown')[0].value = \"MOBI\";" +
-                                        "document.getElementsByClassName('dropdown-content select-dropdown')[0].getElementsByTagName('li')[0].className = \"\";" +
-                                        "document.getElementsByClassName('dropdown-content select-dropdown')[0].getElementsByTagName('li')[1].className = \"active\";" +
-                                        "document.getElementsByName('format')[0].value = \"mobi\";" +
-                                        "document.getElementById(\"download-submit\").click();";
-
-                        final Handler handler = new Handler();
-                        handler.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                mWebview.evaluateJavascript(jsString, new ValueCallback<String>() {
-                                    @Override
-                                    public void onReceiveValue(String value) {
-                                        Toast.makeText(
-                                                getApplicationContext(),
-                                                "Script run successfully!",
-                                                LENGTH_SHORT
-                                        ).show();
-                                    }
-                                });
-                            }
-                        }, 1000);
-                    }
-                }
-            });
-            WebSettings webSettings = mWebview.getSettings();
-            webSettings.setJavaScriptEnabled(true);
+            mWebview.setDownloadListener(new FicsaveDownloadListener(this));
+            mWebview.setWebViewClient(new FicsaveWebViewClient(this, this, ficUrl));
+            mWebview.getSettings().setJavaScriptEnabled(true);
             mWebview.loadUrl("http://ficsave.xyz");
         }
     }

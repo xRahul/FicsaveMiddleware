@@ -16,7 +16,7 @@ import android.widget.Toast;
 //import java.util.regex.Matcher;
 //import java.util.regex.Pattern;
 
-class MyDownloadListener implements DownloadListener {
+class FicsaveDownloadListener implements DownloadListener {
     private Context mContext;
     private DownloadManager mDownloadManager;
 //    private long mDownloadedFileID;
@@ -27,7 +27,7 @@ class MyDownloadListener implements DownloadListener {
     private String downloadContentDisposition;
     private String downloadMimeType;
 
-    MyDownloadListener(Context context) {
+    FicsaveDownloadListener(Context context) {
         mContext = context;
         mDownloadManager = (DownloadManager) mContext
                 .getSystemService(Context.DOWNLOAD_SERVICE);
