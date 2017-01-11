@@ -1,11 +1,9 @@
 package in.rahulja.ficsavemiddleware;
 
 import android.app.DownloadManager;
-//import android.content.ActivityNotFoundException;
-//import android.content.BroadcastReceiver;
+import android.content.BroadcastReceiver;
 import android.content.Context;
-//import android.content.Intent;
-//import android.content.IntentFilter;
+import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Environment;
 import android.webkit.CookieManager;
@@ -13,21 +11,16 @@ import android.webkit.DownloadListener;
 import android.webkit.URLUtil;
 import android.widget.Toast;
 
-//import java.util.regex.Matcher;
-//import java.util.regex.Pattern;
-
 class FicsaveDownloadListener implements DownloadListener {
-    private Context mContext;
+    private MainActivity mContext;
     private DownloadManager mDownloadManager;
-//    private long mDownloadedFileID;
-//    private DownloadManager.Request mRequest;
 
     private String downloadUrl;
     private String downloadUserAgent;
     private String downloadContentDisposition;
     private String downloadMimeType;
 
-    FicsaveDownloadListener(Context context) {
+    FicsaveDownloadListener(MainActivity context) {
         mContext = context;
         mDownloadManager = (DownloadManager) mContext
                 .getSystemService(Context.DOWNLOAD_SERVICE);
@@ -43,6 +36,8 @@ class FicsaveDownloadListener implements DownloadListener {
         downloadMimeType = mimetype;
 
         downloadFile();
+
+
 
         /*
 
@@ -130,9 +125,16 @@ class FicsaveDownloadListener implements DownloadListener {
         request.addRequestHeader("cookie", cookies);
         request.addRequestHeader("User-Agent", userAgent);
 
-        mDownloadManager.enqueue(request);
+        long fileDownloadId = mDownloadManager.enqueue(request);
 
-        Toast.makeText(mContext, "Downloading File", //To notify the Client that the file is being downloaded
+//        BroadcastReceiver onComplete = new DownloadCompleteBroadcastReceiver(fileDownloadId);
+//
+//        mContext.registerReceiver(
+//                onComplete,
+//                new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE)
+//        );
+
+        Toast.makeText(mContext, R.string.downloading_file_toast_msg, //To notify the Client that the file is being downloaded
                 Toast.LENGTH_LONG).show();
     }
 }

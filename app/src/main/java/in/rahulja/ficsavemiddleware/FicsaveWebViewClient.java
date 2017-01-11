@@ -1,32 +1,48 @@
 package in.rahulja.ficsavemiddleware;
 
 
-import android.app.Activity;
-import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Handler;
 import android.webkit.ValueCallback;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
-import static android.widget.Toast.LENGTH_SHORT;
-
 
 class FicsaveWebViewClient extends WebViewClient {
 
-    private Context mContext;
-    private Activity mActivity;
+    private MainActivity mActivity;
     private String ficUrl;
 
-    FicsaveWebViewClient(Context context, Activity activity, String ficurl) {
-        mContext = context;
+    FicsaveWebViewClient(MainActivity activity, String ficurl) {
         mActivity = activity;
         ficUrl = ficurl;
     }
 
+    @Override
+    public boolean shouldOverrideUrlLoading(WebView view, String url) {
+
+        if (Uri.parse(url).getHost().equals(mActivity.getString(R.string.ficsave_host))) {
+            return false;
+        }
+
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+        mActivity.startActivity(intent);
+        return true;
+    }
+
+    @Override
+    public void onPageStarted(WebView view, String url, Bitmap favicon) {
+        mActivity.showTitleProgressSpinner();
+    }
+
+    @Override
     public void onPageFinished(final WebView view, String url) {
-        mActivity.setProgressBarIndeterminateVisibility(false);
-        if (!url.contains("http://ficsave.xyz/download/") && !ficUrl.isEmpty()) {
+        mActivity.hideTitleProgressSpinner();
+
+        if (!url.contains(mActivity.getString(R.string.ficsave_download_url)) && !ficUrl.isEmpty()) {
             final String jsString =
                     "document.getElementById('url').value = \"" + ficUrl + "\"; " +
                             "document.getElementsByClassName('select-dropdown')[0].value = \"MOBI\";" +
@@ -43,9 +59,9 @@ class FicsaveWebViewClient extends WebViewClient {
                         @Override
                         public void onReceiveValue(String value) {
                             Toast.makeText(
-                                    mContext,
-                                    "Script run successfully!",
-                                    LENGTH_SHORT
+                                    mActivity,
+                                    R.string.script_run_success,
+                                    Toast.LENGTH_SHORT
                             ).show();
                         }
                     });

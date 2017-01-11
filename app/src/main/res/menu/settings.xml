@@ -7,6 +7,6 @@
         <!--android:orderInCategory="100"-->
         <!--app:showAsAction="never"-->
         <!--android:title="@string/menu_settings"-->
-        <!--android:icon="@android:xml/preferences"/>-->
+        <!--android:icon="@xml/preferences"/>-->
 
 </menu>
