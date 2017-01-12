@@ -27,5 +27,5 @@
         android:max="100"
         android:layout_marginBottom="-8dp"
         android:layout_marginTop="-8dp"
-        android:progress="20" />
+        android:progress="0" />
 </RelativeLayout>

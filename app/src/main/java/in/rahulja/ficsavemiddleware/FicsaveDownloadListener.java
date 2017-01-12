@@ -1,11 +1,11 @@
 package in.rahulja.ficsavemiddleware;
 
 import android.app.DownloadManager;
-import android.content.BroadcastReceiver;
+import android.app.DownloadManager.Request;
 import android.content.Context;
-import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Environment;
+import android.util.Log;
 import android.webkit.CookieManager;
 import android.webkit.DownloadListener;
 import android.webkit.URLUtil;
@@ -22,8 +22,6 @@ class FicsaveDownloadListener implements DownloadListener {
 
     FicsaveDownloadListener(MainActivity context) {
         mContext = context;
-        mDownloadManager = (DownloadManager) mContext
-                .getSystemService(Context.DOWNLOAD_SERVICE);
     }
 
     @Override
@@ -34,6 +32,8 @@ class FicsaveDownloadListener implements DownloadListener {
         downloadUserAgent = userAgent;
         downloadContentDisposition = contentDisposition;
         downloadMimeType = mimetype;
+        mDownloadManager = (DownloadManager) mContext
+                .getSystemService(Context.DOWNLOAD_SERVICE);
 
         downloadFile();
 
@@ -104,37 +104,41 @@ class FicsaveDownloadListener implements DownloadListener {
     }
 
     private void downloadFile() {
-        String url = downloadUrl;
-        String userAgent = downloadUserAgent;
-        String contentDisposition = downloadContentDisposition;
-        String mimetype = downloadMimeType;
 
-        String fileName = URLUtil.guessFileName(url, contentDisposition, mimetype);
-        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
+        // Guess file name from metadata
+        String fileName = URLUtil.guessFileName(downloadUrl, downloadContentDisposition, downloadMimeType);
+        Request request = new Request(Uri.parse(downloadUrl));
 
+        // Make media scanner scan this file so that other apps can use it.
         request.allowScanningByMediaScanner();
+
+        // show notification when downloading and after download completes
         request.setNotificationVisibility(
-                DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED
-        ); //Notify client once download is completed!
+                Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED
+        );
+
+        // Set the directory where to save the file
+        Log.d("ficsaveM/filePath", Environment.DIRECTORY_DOCUMENTS + "/" + fileName);
         request.setDestinationInExternalPublicDir(
-                Environment.DIRECTORY_DOWNLOADS, fileName);
-        request.setMimeType(mimetype);
+                Environment.DIRECTORY_DOCUMENTS, fileName);
+
+        request.setMimeType(downloadMimeType);
         request.setTitle(fileName);
 
-        String cookies = CookieManager.getInstance().getCookie(url);
+        // Set headers needed to download the file
+        String cookies = CookieManager.getInstance().getCookie(downloadUrl);
         request.addRequestHeader("cookie", cookies);
-        request.addRequestHeader("User-Agent", userAgent);
+        request.addRequestHeader("User-Agent", downloadUserAgent);
 
         long fileDownloadId = mDownloadManager.enqueue(request);
-
+        Log.d("ficsaveM/DownloadStartd", "fileID: " + fileDownloadId + ", fileName: " + fileName);
+        Toast.makeText(mContext, R.string.downloading_file_toast_msg, //To notify the Client that the file is being downloaded
+                Toast.LENGTH_LONG).show();
 //        BroadcastReceiver onComplete = new DownloadCompleteBroadcastReceiver(fileDownloadId);
 //
 //        mContext.registerReceiver(
 //                onComplete,
 //                new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE)
 //        );
-
-        Toast.makeText(mContext, R.string.downloading_file_toast_msg, //To notify the Client that the file is being downloaded
-                Toast.LENGTH_LONG).show();
     }
 }
