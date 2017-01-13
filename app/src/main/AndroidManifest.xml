@@ -16,21 +16,23 @@
             android:launchMode="singleInstance">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
+
                 <category android:name="android.intent.category.DEFAULT" />
+
                 <data android:mimeType="text/*" />
             </intent-filter>
         </activity>
-        <activity android:name=".SettingsActivity" />
-
-        <!--<receiver-->
-            <!--android:name=".DownloadCompleteBroadcastReceiver"-->
-            <!--android:enabled="true"-->
-            <!--android:exported="true"-->
-            <!--android:permission="" />-->
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/title_activity_settings"></activity>
+        <activity
+            android:name=".FicSettingsActivity"
+            android:label="@string/title_fic_activity_settings"></activity>
     </application>
 
 </manifest>
