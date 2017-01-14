@@ -4,103 +4,31 @@
     <string name="title_fic_activity_settings">Preferences</string>
 
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="menu_settings">Settings</string>
     <string name="ficsave_host">ficsave.xyz</string>
-    <string name="downloading_file_toast_msg">Downloading File</string>
+    <string name="downloading_file_toast_msg">Downloading File..</string>
     <string name="ficsave_download_url">http://ficsave.xyz/download/</string>
     <string name="script_run_success">Script run successfully!</string>
     <string name="give_permission_toast_msg">Please give storage permission first!</string>
-    <string name="subtitle">Middleware to download fanfictions</string>
+    <string name="subtitle">Middleware to download fictions</string>
     <string name="ficsave">Ficsave</string>
     <string name="action_settings">Settings</string>
-    <string name="loading">Loading...</string>
+    <string name="loading">Loading…</string>
 
-    <!-- Strings related to Settings -->
-
-    <!-- Example General settings -->
-    <string name="pref_header_general">General</string>
-
-    <string name="pref_title_social_recommendations">Enable social recommendations</string>
-    <string name="pref_description_social_recommendations">Recommendations for people to contact
-        based on your message history
-    </string>
-
-    <string name="pref_title_display_name">Display name</string>
-    <string name="pref_default_display_name">John Smith</string>
-
-    <string name="pref_title_add_friends_to_messages">Add friends to messages</string>
-    <string-array name="pref_example_list_titles">
-        <item>Always</item>
-        <item>When possible</item>
-        <item>Never</item>
-    </string-array>
-    <string-array name="pref_example_list_values">
-        <item>1</item>
-        <item>0</item>
-        <item>-1</item>
-    </string-array>
-
-    <!-- Example settings for Data & Sync -->
-    <string name="pref_header_data_sync">Data &amp; sync</string>
-
-    <string name="pref_title_sync_frequency">Sync frequency</string>
-    <string-array name="pref_sync_frequency_titles">
-        <item>15 minutes</item>
-        <item>30 minutes</item>
-        <item>1 hour</item>
-        <item>3 hours</item>
-        <item>6 hours</item>
-        <item>Never</item>
-    </string-array>
-    <string-array name="pref_sync_frequency_values">
-        <item>15</item>
-        <item>30</item>
-        <item>60</item>
-        <item>180</item>
-        <item>360</item>
-        <item>-1</item>
-    </string-array>
-
-    <string-array name="list_preference_entries">
-        <item>Entry 1</item>
-        <item>Entry 2</item>
-        <item>Entry 3</item>
-    </string-array>
-
-    <string-array name="list_preference_entry_values">
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-    </string-array>
-
-    <string-array name="multi_select_list_preference_default_value" />
-
-    <string name="pref_title_system_sync_settings">System sync settings</string>
-
-    <!-- Example settings for Notifications -->
-    <string name="pref_header_notifications">Notifications</string>
-
-    <string name="pref_title_new_message_notifications">New message notifications</string>
-
-    <string name="pref_title_ringtone">Ringtone</string>
-    <string name="pref_ringtone_silent">Silent</string>
-
-    <string name="pref_title_vibrate">Vibrate</string>
-    <string name="file_type_list_preference">Default eBook Type</string>
+    <string name="file_type_list_preference">Default eBook Format</string>
     <string name="download_file">Download eBook</string>
     <string name="download_folder_selector">Select Download Folder</string>
     <string name="send_email_with_file">Send Email With eBook</string>
-    <string name="either_download_or_email">You can either download ebook or have it sent via email</string>
+    <string name="either_download_or_email">You can either download eBook or have it sent via email</string>
     <string name="enter_email">Enter Email Address</string>
     <string name="file_action_list_preference">Default eBook Action</string>
-    <string name="email_address_summary">Email to use for email related actions</string>
+    <string name="email_address_summary">Default email address to use for sending eBook</string>
     <string name="send_email_with_file_from_site">Send eBook as email from ficsave</string>
-    <string name="send_email_with_file_from_site_summary">Send file as an email directly instead of downloading it</string>
+    <string name="send_email_with_file_from_site_summary">Send eBook as an email directly instead of downloading it</string>
     <string name="send_email_from_device">Send downloaded eBook as email</string>
-    <string name="send_email_from_device_summary">Use your mailer to send the eBook as attachment</string>
+    <string name="send_email_from_device_summary">Use your device mailer app to send the eBook as attachment</string>
     <string name="open_file">Open downloaded eBook</string>
     <string name="open_file_summary">Try to open downloaded file locally if a reader is present</string>
     <string name="invalid_fic_url">Invalid URL:</string>
-    <string name="script_run_start">Running script</string>
+    <string name="script_run_start">Running script…</string>
 </resources>
