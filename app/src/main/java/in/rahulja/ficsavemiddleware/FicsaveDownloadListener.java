@@ -7,15 +7,23 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.webkit.CookieManager;
 import android.webkit.DownloadListener;
 import android.webkit.URLUtil;
 import android.widget.Toast;
 
+import java.io.File;
+
 class FicsaveDownloadListener implements DownloadListener {
+    public static final String OPEN_FILE_PREFERENCE = "open_file_preference";
+    public static final String SEND_EMAIL_DEVICE_PREFERENCE = "send_email_device_preference";
+    public static final String EMAIL_ADDRESS_TO_SEND_TO = "email_address_to_send_to";
+    private final SharedPreferences prefs;
     private MainActivity mContext;
     private DownloadManager mDownloadManager;
 
@@ -25,9 +33,11 @@ class FicsaveDownloadListener implements DownloadListener {
     private String downloadMimeType;
 
     private long fileDownloadId;
+    private String fileName;
 
     FicsaveDownloadListener(MainActivity context) {
         mContext = context;
+        prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
     }
 
     @Override
@@ -89,27 +99,54 @@ class FicsaveDownloadListener implements DownloadListener {
                         Log.d("ficsaveM/DCextras", key + " " + value.toString());
                     }
                 }
-                Log.d("ficsaveM/DCextras", intent.getExtras().toString());
 
                 // Prevents the occasional unintentional call. I needed this.
                 if (fileDownloadId == -1 || fileDownloadId != (long) intent.getExtras().get("extra_download_id"))
                     return;
-                Intent fileIntent = new Intent(Intent.ACTION_VIEW);
 
                 // Grabs the Uri for the file that was downloaded.
                 Uri mostRecentDownload =
                         mDownloadManager.getUriForDownloadedFile(fileDownloadId);
-                // DownloadManager stores the Mime Type. Makes it really easy for us.
-                String mimeType =
-                        mDownloadManager.getMimeTypeForDownloadedFile(fileDownloadId);
-                fileIntent.setDataAndType(mostRecentDownload, mimeType);
-                fileIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                try {
-                    mContext.startActivity(fileIntent);
-                } catch (ActivityNotFoundException e) {
-                    Toast.makeText(mContext, "No handler for this type of file.",
-                            Toast.LENGTH_LONG).show();
+
+                if (prefs.getBoolean(OPEN_FILE_PREFERENCE, true)) {
+                    Intent fileIntent = new Intent(Intent.ACTION_VIEW);
+                    // DownloadManager stores the Mime Type. Makes it really easy for us.
+                    String mimeType =
+                            mDownloadManager.getMimeTypeForDownloadedFile(fileDownloadId);
+                    fileIntent.setDataAndType(mostRecentDownload, mimeType);
+                    fileIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    try {
+                        mContext.startActivity(fileIntent);
+                    } catch (ActivityNotFoundException e) {
+                        Toast.makeText(mContext, "No handler for this type of file.",
+                                Toast.LENGTH_LONG).show();
+                    }
                 }
+
+                if (prefs.getBoolean(SEND_EMAIL_DEVICE_PREFERENCE, true)) {
+                    Intent emailIntent = new Intent(Intent.ACTION_SEND);
+                    emailIntent.setType("message/rfc822");
+                    String emailAddress = prefs.getString(EMAIL_ADDRESS_TO_SEND_TO, "");
+                    String to[] = {emailAddress};
+                    emailIntent.putExtra(Intent.EXTRA_EMAIL, to);
+                    // the attachment
+                    emailIntent.putExtra(Intent.EXTRA_STREAM, mostRecentDownload);
+                    // the mail subject
+                    emailIntent.putExtra(Intent.EXTRA_SUBJECT, "FicsaveMiddleware - " + fileName);
+                    // the mail content
+                    String content =
+                            "Hi" +
+                            "\n\n" +
+                            "Hope you enjoy the story!" +
+                            "\n\n" +
+                            "Ficsave.xyz is a creation of https://github.com/waylaidwanderer" +
+                            "\n" +
+                            "and FicsaveMiddleware is created by https://github.com/xRahul.";
+                    emailIntent.putExtra(Intent.EXTRA_TEXT, content);
+                    mContext.startActivity(emailIntent);
+
+                }
+
                 // Sets up the prevention of an unintentional call. I found it necessary. Maybe not for others.
                 fileDownloadId = -1;
 
@@ -123,7 +160,7 @@ class FicsaveDownloadListener implements DownloadListener {
 
     private void downloadFile() {
         // Guess file name from metadata
-        String fileName = URLUtil.guessFileName(downloadUrl, downloadContentDisposition, downloadMimeType);
+        fileName = URLUtil.guessFileName(downloadUrl, downloadContentDisposition, downloadMimeType);
         Request request = new Request(Uri.parse(downloadUrl));
 
         // Download only over wifi

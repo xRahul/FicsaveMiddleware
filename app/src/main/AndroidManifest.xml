@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="in.rahulja.ficsavemiddleware">
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -10,6 +11,7 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
+        tools:node="replace"
         android:theme="@style/AppTheme">
         <activity
             android:name=".MainActivity"
@@ -28,11 +30,10 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".SettingsActivity"
-            android:label="@string/title_activity_settings"></activity>
-        <activity
             android:name=".FicSettingsActivity"
             android:label="@string/title_fic_activity_settings"></activity>
+
+        <activity android:name="net.rdrei.android.dirchooser.DirectoryChooserActivity" />
     </application>
 
 </manifest>

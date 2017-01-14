@@ -1,9 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string-array name="FileTypeToDownload">
-        <item name="mobi">Mobi</item>
-        <item name="epub">ePub</item>
-        <item name="text">Text</item>
+    <string-array name="FileTypes">
+        <item>Mobi</item>
+        <item>ePub</item>
+        <item>Text</item>
+    </string-array>
+    <string-array name="FileTypesAlias">
+        <item>mobi</item>
+        <item>epub</item>
+        <item>txt</item>
+    </string-array>
+    <string-array name="FileAction">
+        <item>Download</item>
+        <item>Send Email</item>
+    </string-array>
+    <string-array name="FileActionAlias">
+        <item>download</item>
+        <item>send_email</item>
     </string-array>
     <string-array name="DownloadorSendEmail">
         <item name="download">Download</item>

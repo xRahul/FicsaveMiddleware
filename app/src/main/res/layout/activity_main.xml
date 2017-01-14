@@ -11,21 +11,27 @@
         layout="@layout/tool_bar"
         android:visibility="visible" />
 
-    <WebView
-        android:id="@+id/main_webview"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_below="@+id/tool_bar"
-        android:layout_alignParentStart="true" />
-
-    <ProgressBar
-        style="?android:progressBarStyleHorizontal"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_below="@+id/tool_bar"
-        android:id="@+id/progressBarHorizontal"
-        android:max="100"
-        android:layout_marginBottom="-8dp"
-        android:layout_marginTop="-8dp"
-        android:progress="0" />
+        android:id="@+id/body_main">
+
+        <WebView
+            android:id="@+id/main_webview"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_alignParentStart="true" />
+
+        <ProgressBar
+            style="?android:progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/progressBarHorizontal"
+            android:max="100"
+            android:layout_marginBottom="-8dp"
+            android:layout_marginTop="-8dp"
+            android:progress="0" />
+    </RelativeLayout>
+
 </RelativeLayout>

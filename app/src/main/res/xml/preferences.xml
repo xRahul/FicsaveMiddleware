@@ -1,18 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <PreferenceCategory android:title="Ficsave Page">
+    <PreferenceCategory android:title="Settings">
+
         <ListPreference
             android:defaultValue="mobi"
-            android:title="Choose Default File Type"
-            android:entries="@array/FileTypeToDownload"
-            android:entryValues="@array/FileTypeToDownload"
-            android:key="default_file_type" />
-        <ListPreference
-            android:defaultValue="download"
-            android:title="Download or Send Email from Ficsave Directly"
-            android:entries="@array/DownloadorSendEmail"
-            android:entryValues="@array/DownloadorSendEmail"
-            android:key="default_site_download_email" />
+            android:entries="@array/FileTypes"
+            android:entryValues="@array/FileTypesAlias"
+            android:key="file_types_preference"
+            android:summary="%s"
+            android:title="@string/file_type_list_preference" />
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="download_file_preference"
+            android:title="@string/download_file" />
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="open_file_preference"
+            android:title="@string/open_file"
+            android:summary="@string/open_file_summary"
+            android:dependency="download_file_preference" />
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="send_email_device_preference"
+            android:title="@string/send_email_from_device"
+            android:summary="@string/send_email_from_device_summary"
+            android:dependency="download_file_preference" />
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="send_email_site_preference"
+            android:summary="@string/send_email_with_file_from_site_summary"
+            android:title="@string/send_email_with_file_from_site" />
+        <EditTextPreference
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:key="email_address_to_send_to"
+            android:title="@string/enter_email"
+            android:summary="@string/email_address_summary" />
+
     </PreferenceCategory>
 </PreferenceScreen>

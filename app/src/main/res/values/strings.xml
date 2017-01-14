@@ -87,4 +87,20 @@
     <string name="pref_ringtone_silent">Silent</string>
 
     <string name="pref_title_vibrate">Vibrate</string>
+    <string name="file_type_list_preference">Default eBook Type</string>
+    <string name="download_file">Download eBook</string>
+    <string name="download_folder_selector">Select Download Folder</string>
+    <string name="send_email_with_file">Send Email With eBook</string>
+    <string name="either_download_or_email">You can either download ebook or have it sent via email</string>
+    <string name="enter_email">Enter Email Address</string>
+    <string name="file_action_list_preference">Default eBook Action</string>
+    <string name="email_address_summary">Email to use for email related actions</string>
+    <string name="send_email_with_file_from_site">Send eBook as email from ficsave</string>
+    <string name="send_email_with_file_from_site_summary">Send file as an email directly instead of downloading it</string>
+    <string name="send_email_from_device">Send downloaded eBook as email</string>
+    <string name="send_email_from_device_summary">Use your mailer to send the eBook as attachment</string>
+    <string name="open_file">Open downloaded eBook</string>
+    <string name="open_file_summary">Try to open downloaded file locally if a reader is present</string>
+    <string name="invalid_fic_url">Invalid URL:</string>
+    <string name="script_run_start">Running script</string>
 </resources>

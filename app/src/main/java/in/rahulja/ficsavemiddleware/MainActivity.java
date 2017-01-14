@@ -3,9 +3,11 @@ package in.rahulja.ficsavemiddleware;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -27,9 +29,13 @@ import java.util.regex.Matcher;
 public class MainActivity extends AppCompatActivity {
 
     private static final int PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1;
+    public static final String FILE_TYPES_PREFERENCE = "file_types_preference";
+    public static final String SEND_EMAIL_SITE_PREFERENCE = "send_email_site_preference";
+    public static final String EMAIL_ADDRESS_TO_SEND_TO = "email_address_to_send_to";
     private ProgressBar pbHorizontal;
     private ProgressBar pbCircle;
     private WebView mWebview;
+    private SharedPreferences prefs;
 
     private String ficUrl = "";
 
@@ -38,10 +44,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+
         // get progress bars
         pbHorizontal = (ProgressBar) findViewById(R.id.progressBarHorizontal);
         pbCircle = (ProgressBar) findViewById(R.id.progressBarCircle);
         mWebview = (WebView) findViewById(R.id.main_webview);
+
+        prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
         // Attaching the layout to the toolbar object
         Toolbar toolbar = (Toolbar) findViewById(R.id.tool_bar);
@@ -211,13 +221,26 @@ public class MainActivity extends AppCompatActivity {
     public void runJSonPage(String url) {
         Log.d("ficsaveM/runJSCalled", url + " " + ficUrl);
         // Check if not loading the download URL and some fanfic url is there to download
-        if (!url.contains(getString(R.string.ficsave_download_url)) && !ficUrl.isEmpty()) {
+        if (!url.contains(getString(R.string.ficsave_download_url))) {
+
+            if (!ficUrl.isEmpty() && !Patterns.WEB_URL.matcher(ficUrl).matches()) {
+                Toast.makeText(
+                        getApplicationContext(),
+                        R.string.invalid_fic_url + " " + ficUrl,
+                        Toast.LENGTH_LONG
+                ).show();
+            }
 
             // Get javascript to run on page
             final String jsString = getJsScript();
 
             // Execute Javascript on a new thread 2 second after page load
             Log.d("ficsaveM/JSrun", "Start");
+            Toast.makeText(
+                    getApplicationContext(),
+                    R.string.script_run_start,
+                    Toast.LENGTH_SHORT
+            ).show();
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -241,12 +264,40 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private String getJsScript() {
-        return
-            "document.getElementById('url').value = \"" + ficUrl + "\"; " +
-            "document.getElementsByClassName('select-dropdown')[0].value = \"MOBI\";" +
-            "document.getElementsByClassName('dropdown-content select-dropdown')[0].getElementsByTagName('li')[0].className = \"\";" +
-            "document.getElementsByClassName('dropdown-content select-dropdown')[0].getElementsByTagName('li')[1].className = \"active\";" +
-            "document.getElementsByName('format')[0].value = \"mobi\";" +
-            "document.getElementById(\"download-submit\").click();";
+
+        String jsScript = "";
+
+        if (!ficUrl.isEmpty()) {
+            jsScript +=
+                "document.getElementsByClassName(\"grey-text text-lighten-1\")[0].className = \"grey-text text-lighten-1 active\";" +
+                "document.getElementById('url').value = \"" + ficUrl + "\";";
+        }
+
+        if (prefs.getBoolean(SEND_EMAIL_SITE_PREFERENCE, false)) {
+            jsScript +=
+                "document.getElementsByClassName(\"grey-text text-lighten-1\")[2].className = \"grey-text text-lighten-1 active\";" +
+                "document.getElementById('email').value = \"" + prefs.getString(EMAIL_ADDRESS_TO_SEND_TO, "") + "\";";
+        }
+
+        switch (prefs.getString(FILE_TYPES_PREFERENCE, "mobi")) {
+            case "mobi":
+                jsScript += "document.getElementsByClassName('select-dropdown')[0].value = \"MOBI\";" +
+                        "document.getElementsByName('format')[0].value = \"mobi\";";
+                break;
+            case "epub":
+                jsScript += "document.getElementsByClassName('select-dropdown')[0].value = \"ePub\";" +
+                        "document.getElementsByName('format')[0].value = \"epub\";";
+                break;
+            case "txt":
+                jsScript += "document.getElementsByClassName('select-dropdown')[0].value = \"Text\";" +
+                        "document.getElementsByName('format')[0].value = \"txt\";";
+                break;
+        }
+
+        if (!ficUrl.isEmpty()) {
+            jsScript += "document.getElementById(\"download-submit\").click();";
+        }
+
+        return jsScript;
     }
 }
