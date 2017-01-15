@@ -17,12 +17,13 @@ import android.webkit.DownloadListener;
 import android.webkit.URLUtil;
 import android.widget.Toast;
 
-import java.io.File;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 
 class FicsaveDownloadListener implements DownloadListener {
-    public static final String OPEN_FILE_PREFERENCE = "open_file_preference";
-    public static final String SEND_EMAIL_DEVICE_PREFERENCE = "send_email_device_preference";
-    public static final String EMAIL_ADDRESS_TO_SEND_TO = "email_address_to_send_to";
+    private static final String OPEN_FILE_PREFERENCE = "open_file_preference";
+    private static final String SEND_EMAIL_DEVICE_PREFERENCE = "send_email_device_preference";
+    private static final String EMAIL_ADDRESS_TO_SEND_TO = "email_address_to_send_to";
     private final SharedPreferences prefs;
     private MainActivity mContext;
     private DownloadManager mDownloadManager;
@@ -34,10 +35,13 @@ class FicsaveDownloadListener implements DownloadListener {
 
     private long fileDownloadId;
     private String fileName;
+    private Tracker mTracker;
 
     FicsaveDownloadListener(MainActivity context) {
         mContext = context;
         prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+        FicsaveMiddlewareApplication application = (FicsaveMiddlewareApplication) mContext.getApplication();
+        mTracker = application.getDefaultTracker();
     }
 
     @Override
@@ -54,36 +58,6 @@ class FicsaveDownloadListener implements DownloadListener {
 
         downloadFile();
         listenToDownloadComplete();
-
-        /*
-
-        mRequest = new DownloadManager.Request(Uri.parse(url));
-        // Limits the download to only over WiFi. Optional.
-        mRequest.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI);
-        // Makes download visible in notifications while downloading, but disappears after download completes. Optional.
-        mRequest.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE);
-        mRequest.setMimeType(mimetype);
-
-        // If necessary for a security check. I needed it, but I don't think it's mandatory.
-        String cookie = CookieManager.getInstance().getCookie(url);
-        mRequest.addRequestHeader("Cookie", cookie);
-
-        // Grabs the file name from the Content-Disposition
-        String filename = null;
-        Pattern regex = Pattern.compile("(?<=filename=\").*?(?=\")");
-        Matcher regexMatcher = regex.matcher(contentDisposition);
-        if (regexMatcher.find()) {
-            filename = regexMatcher.group();
-        }
-
-        // Sets the file path to save to, including the file name. Make sure to have the WRITE_EXTERNAL_STORAGE permission!!
-        mRequest.setDestinationInExternalFilesDir(mContext, Environment.DIRECTORY_DOWNLOADS, filename);
-        // Sets the title of the notification and how it appears to the user in the saved directory.
-        mRequest.setTitle(filename);
-
-        // Adds the request to the DownloadManager queue to be executed at the next available opportunity.
-        mDownloadedFileID = mDownloadManager.enqueue(mRequest);
-        */
     }
 
     private void listenToDownloadComplete() {
@@ -151,6 +125,13 @@ class FicsaveDownloadListener implements DownloadListener {
                 fileDownloadId = -1;
 
                 mContext.unregisterReceiver(this);
+
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("DownloadListenerCategory")
+                        .setAction("Download Complete")
+                        .setLabel("File: " + fileName)
+                        .setValue(1)
+                        .build());
             }
         };
         // Registers function to listen to the completion of the download.
@@ -191,5 +172,12 @@ class FicsaveDownloadListener implements DownloadListener {
         Log.d("ficsaveM/DownloadStartd", "fileID: " + fileDownloadId + ", fileName: " + fileName);
         Toast.makeText(mContext, R.string.downloading_file_toast_msg, //To notify the Client that the file is being downloaded
                 Toast.LENGTH_LONG).show();
+
+        mTracker.send(new HitBuilders.EventBuilder()
+                .setCategory("DownloadListenerCategory")
+                .setAction("Download Enqueued")
+                .setLabel("File: " + fileName)
+                .setValue(1)
+                .build());
     }
 }

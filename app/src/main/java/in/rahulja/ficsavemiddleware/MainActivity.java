@@ -23,6 +23,9 @@ import android.webkit.WebView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+
 import java.util.regex.Matcher;
 
 
@@ -36,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
     private ProgressBar pbCircle;
     private WebView mWebview;
     private SharedPreferences prefs;
+    private Tracker mTracker;
 
     private String ficUrl = "";
 
@@ -53,6 +57,10 @@ public class MainActivity extends AppCompatActivity {
 
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
+        FicsaveMiddlewareApplication application = (FicsaveMiddlewareApplication) getApplication();
+        mTracker = application.getDefaultTracker();
+
+
         // Attaching the layout to the toolbar object
         Toolbar toolbar = (Toolbar) findViewById(R.id.tool_bar);
         // Setting toolbar as the ActionBar with setSupportActionBar() call
@@ -60,6 +68,15 @@ public class MainActivity extends AppCompatActivity {
 
         prepare();
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mTracker.setScreenName("Homepage");
+        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+    }
+
+
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -170,9 +187,24 @@ public class MainActivity extends AppCompatActivity {
             String urlToLoad = intent_view_url.isEmpty() ? ficsaveHomePage : intent_view_url;
             if (mWebview.getUrl() != null && mWebview.getUrl().contains(urlToLoad)) {
                 runJSonPage(urlToLoad);
+
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("MainPageCategory")
+                        .setAction("Running JS - Website already Loaded")
+                        .setLabel("Url: " + urlToLoad)
+                        .setValue(1)
+                        .build());
+
             } else {
                 Log.d("ficsaveM/load", urlToLoad);
                 mWebview.loadUrl(urlToLoad);
+
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("MainPageCategory")
+                        .setAction("Loading Url")
+                        .setLabel("Url: " + urlToLoad)
+                        .setValue(1)
+                        .build());
             }
         }
     }
@@ -184,6 +216,13 @@ public class MainActivity extends AppCompatActivity {
         if (Intent.ACTION_VIEW.equals(intentAction)) {
             url = intent.getData().toString();
             Log.d("ficsaveM/deepLink", url + " " + intent.toString());
+
+            mTracker.send(new HitBuilders.EventBuilder()
+                    .setCategory("MainPageCategory")
+                    .setAction("Deep Link Accessed")
+                    .setLabel("Url: " + url)
+                    .setValue(1)
+                    .build());
         }
         return url;
     }
@@ -202,6 +241,13 @@ public class MainActivity extends AppCompatActivity {
                         String url = m.group();
                         ficUrl = url;
                         Log.d("ficsaveM/setIntFicUrl", "URL extracted: " + url);
+
+                        mTracker.send(new HitBuilders.EventBuilder()
+                                .setCategory("MainPageCategory")
+                                .setAction("Fic Url Set")
+                                .setLabel("Url: " + ficUrl)
+                                .setValue(1)
+                                .build());
                     }
                 }
             }
@@ -214,13 +260,16 @@ public class MainActivity extends AppCompatActivity {
             @NonNull String permissions[],
             @NonNull int[] grantResults
     ) {
+        String trackerResult = "";
         switch (requestCode) {
             case PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE: {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    trackerResult = "Granted";
                     init();
                 } else {
+                    trackerResult = "Denied";
                     Log.d("ficsaveM/permission", "WRITE_EXTERNAL_STORAGE Permission Denied");
                     Toast.makeText(
                         getApplicationContext(), 
@@ -230,6 +279,12 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
+        mTracker.send(new HitBuilders.EventBuilder()
+                .setCategory("MainPageCategory")
+                .setAction("Permission Requested")
+                .setLabel("WRITE_EXTERNAL_STORAGE: " + trackerResult)
+                .setValue(1)
+                .build());
     }
 
     public void runJSonPage(String url) {
@@ -267,6 +322,13 @@ public class MainActivity extends AppCompatActivity {
                                     R.string.script_run_success,
                                     Toast.LENGTH_SHORT
                             ).show();
+
+                            mTracker.send(new HitBuilders.EventBuilder()
+                                    .setCategory("MainPageCategory")
+                                    .setAction("JS run success")
+                                    .setLabel(value)
+                                    .setValue(1)
+                                    .build());
 
                             // empty the fanfic url so it won't get downloaded again somehow
                             ficUrl = "";

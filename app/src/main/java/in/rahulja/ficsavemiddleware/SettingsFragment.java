@@ -12,6 +12,9 @@ import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.util.Patterns;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+
 
 public class SettingsFragment extends PreferenceFragment {
 
@@ -23,6 +26,7 @@ public class SettingsFragment extends PreferenceFragment {
     private OnSharedPreferenceChangeListener listener;
     private Preference emailAddressPref;
     private SharedPreferences prefs;
+    private Tracker mTracker;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -34,6 +38,9 @@ public class SettingsFragment extends PreferenceFragment {
         updatePreferenceView();
 
         initializePreferenceListener();
+
+        FicsaveMiddlewareApplication application = (FicsaveMiddlewareApplication) getActivity().getApplication();
+        mTracker = application.getDefaultTracker();
     }
 
     private void updatePreferenceView() {
@@ -140,6 +147,13 @@ public class SettingsFragment extends PreferenceFragment {
                         break;
                 }
                 updatePreferenceView();
+
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("SettingsCategory")
+                        .setAction("SharedPreferenceChanged: " + key)
+                        .setLabel(sPrefs.getAll().toString())
+                        .setValue(1)
+                        .build());
             }
         };
     }
@@ -148,6 +162,7 @@ public class SettingsFragment extends PreferenceFragment {
     @Override
     public void onResume() {
         super.onResume();
+
         getPreferenceScreen().getSharedPreferences()
                 .registerOnSharedPreferenceChangeListener(listener);
     }
