@@ -9,3 +9,8 @@ Opening the website, entering the url, choosing options can become tedious after
 * choose a default eBook format for further actions.
 * Download ebook to device or send as attachment directly from ficsave website.
 * Open downloaded eBook by default, or send as attachment via your email app to someone.
+
+## Screenshots
+
+![Home](https://github.com/xRahul/FicsaveMiddleware/raw/master/Screenshots/Home.jpg) 
+![Preferences](https://github.com/xRahul/FicsaveMiddleware/raw/master/Screenshots/Preferences.jpg)
