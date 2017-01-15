@@ -12,5 +12,4 @@ Opening the website, entering the url, choosing options can become tedious after
 
 ## Screenshots
 
-![Home](https://github.com/xRahul/FicsaveMiddleware/raw/master/Screenshots/Home.jpg) 
-![Preferences](https://github.com/xRahul/FicsaveMiddleware/raw/master/Screenshots/Preferences.jpg)
+![Screens](https://github.com/xRahul/FicsaveMiddleware/raw/master/Screenshots/screens.jpg) 
