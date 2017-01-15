@@ -3,6 +3,8 @@
 This is a wrapper around the ficsave.xyz website. 
 Opening the website, entering the url, choosing options can become tedious after you've read your 100th fic.
 
+This app supports Android 4.4+
+
 
 ## Current Features
 * Share fic url with the app to automate what happens.
