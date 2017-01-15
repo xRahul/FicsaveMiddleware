@@ -154,6 +154,8 @@ public class MainActivity extends AppCompatActivity {
         // set fanfic url as main
         setIntentFicUrl();
 
+        String intent_view_url = getIntentViewUrl();
+
         if (mWebview != null) {
             // set listeners and clients to webview
             mWebview.setWebViewClient(new FicsaveWebViewClient(this));
@@ -165,13 +167,25 @@ public class MainActivity extends AppCompatActivity {
 
             // load the ficsave homepage
             String ficsaveHomePage = "http://" + getString(R.string.ficsave_host);
-            if (mWebview.getUrl() != null && mWebview.getUrl().contains(ficsaveHomePage)) {
-                runJSonPage(mWebview.getUrl());
+            String urlToLoad = intent_view_url.isEmpty() ? ficsaveHomePage : intent_view_url;
+            if (mWebview.getUrl() != null && mWebview.getUrl().contains(urlToLoad)) {
+                runJSonPage(urlToLoad);
             } else {
-                Log.d("ficsaveM/load", ficsaveHomePage);
-                mWebview.loadUrl(ficsaveHomePage);
+                Log.d("ficsaveM/load", urlToLoad);
+                mWebview.loadUrl(urlToLoad);
             }
         }
+    }
+
+    private String getIntentViewUrl() {
+        String url = "";
+        Intent intent = getIntent();
+        String intentAction = intent.getAction();
+        if (Intent.ACTION_VIEW.equals(intentAction)) {
+            url = intent.getData().toString();
+            Log.d("ficsaveM/deepLink", url + " " + intent.toString());
+        }
+        return url;
     }
 
     private void setIntentFicUrl() {
