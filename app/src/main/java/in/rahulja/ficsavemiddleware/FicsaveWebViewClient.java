@@ -4,26 +4,31 @@ package in.rahulja.ficsavemiddleware;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Bundle;
 import android.util.Log;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 
 class FicsaveWebViewClient extends WebViewClient {
 
     private MainActivity mActivity;
-    private Tracker mTracker;
+    private Tracker mGTracker;
+    private FirebaseAnalytics mFTracker;
 
     FicsaveWebViewClient(MainActivity activity) {
         mActivity = activity;
         FicsaveMiddlewareApplication application = (FicsaveMiddlewareApplication) mActivity.getApplication();
-        mTracker = application.getDefaultTracker();
+        mGTracker = application.getDefaultGATracker();
+        mFTracker = application.getDefaultFATracker();
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public boolean shouldOverrideUrlLoading(WebView view, String url) {
 
         // if URL's host is ficsave.xyz, open in webview, else let android open it somewhere else
@@ -31,12 +36,15 @@ class FicsaveWebViewClient extends WebViewClient {
             return false;
         }
 
-        mTracker.send(new HitBuilders.EventBuilder()
+        mGTracker.send(new HitBuilders.EventBuilder()
                 .setCategory("WebViewClientCategory")
-                .setAction("Other Url than ficsave Clicked")
+                .setAction("Other Url than ficsave Opened")
                 .setLabel("Url: " + url)
                 .setValue(1)
                 .build());
+        Bundle bundle = new Bundle();
+        bundle.putString("Url", url);
+        mFTracker.logEvent("OtherUrlthanficsaveOpened", bundle);
 
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
         mActivity.startActivity(intent);
@@ -60,11 +68,15 @@ class FicsaveWebViewClient extends WebViewClient {
     @SuppressWarnings("deprecation")
     public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
         Log.d("ficsaveM/ErrorLoading", "Url: " + failingUrl + " Reason" + description);
-        mTracker.send(new HitBuilders.EventBuilder()
+        mGTracker.send(new HitBuilders.EventBuilder()
                 .setCategory("WebViewClientCategory")
                 .setAction("Page Load Error")
                 .setLabel("Url: " + failingUrl + " Reason" + description)
                 .setValue(1)
                 .build());
+        Bundle bundle = new Bundle();
+        bundle.putString("Url", failingUrl);
+        bundle.putString("Reason", description);
+        mFTracker.logEvent("PageLoadError", bundle);
     }
 }

@@ -22,3 +22,20 @@ allprojects {
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
+
+// This block encapsulates custom properties and makes them available to all
+// modules in the project.
+ext {
+    // The following are only a few examples of the types of properties you can define.
+    compileSdkVersion = 25
+    buildToolsVersion = "25.0.2"
+    // You can also create properties to specify versions for dependencies.
+    // Having consistent versions between modules can avoid conflicts with behavior.
+    supportLibVersion = "25.1.0"
+    gmsFirebaseVersion = "10.0.1"
+    minSdkVersion = 19
+    targetSdkVersion = 25
+    applicationId = "in.rahulja.ficsavemiddleware"
+    versionCode = 13
+    versionName = "1.3"
+}

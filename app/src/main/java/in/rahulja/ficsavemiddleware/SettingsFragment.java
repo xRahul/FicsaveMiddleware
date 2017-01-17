@@ -14,6 +14,7 @@ import android.util.Patterns;
 
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 
 public class SettingsFragment extends PreferenceFragment {
@@ -26,7 +27,8 @@ public class SettingsFragment extends PreferenceFragment {
     private OnSharedPreferenceChangeListener listener;
     private Preference emailAddressPref;
     private SharedPreferences prefs;
-    private Tracker mTracker;
+    private Tracker mGTracker;
+    private FirebaseAnalytics mFTracker;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -40,7 +42,8 @@ public class SettingsFragment extends PreferenceFragment {
         initializePreferenceListener();
 
         FicsaveMiddlewareApplication application = (FicsaveMiddlewareApplication) getActivity().getApplication();
-        mTracker = application.getDefaultTracker();
+        mGTracker = application.getDefaultGATracker();
+        mFTracker = application.getDefaultFATracker();
     }
 
     private void updatePreferenceView() {
@@ -59,7 +62,7 @@ public class SettingsFragment extends PreferenceFragment {
 
         Preference downloadFolderPref = findPreference(DOWNLOAD_FILE_PREFERENCE);
         String defaultDownloadFolder = Environment.getExternalStorageDirectory()
-                                        + "/" + Environment.DIRECTORY_DOCUMENTS;
+                + "/" + Environment.DIRECTORY_DOCUMENTS;
         downloadFolderPref.setSummary(defaultDownloadFolder);
         emailAddressPref = findPreference(EMAIL_ADDRESS_TO_SEND_TO);
         emailAddressPref.setSummary(tempSummary);
@@ -148,12 +151,16 @@ public class SettingsFragment extends PreferenceFragment {
                 }
                 updatePreferenceView();
 
-                mTracker.send(new HitBuilders.EventBuilder()
+                mGTracker.send(new HitBuilders.EventBuilder()
                         .setCategory("SettingsCategory")
                         .setAction("SharedPreferenceChanged: " + key)
                         .setLabel(sPrefs.getAll().toString())
                         .setValue(1)
                         .build());
+                Bundle bundle = new Bundle();
+                bundle.putString("Key", key);
+                bundle.putString("Preferences", sPrefs.getAll().toString());
+                mFTracker.logEvent("SharedPreferenceChanged", bundle);
             }
         };
     }

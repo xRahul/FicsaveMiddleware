@@ -8,7 +8,7 @@
     <string name="ficsave_host">ficsave.xyz</string>
     <string name="downloading_file_toast_msg">Downloading File..</string>
     <string name="ficsave_download_url">http://ficsave.xyz/download/</string>
-    <string name="script_run_success">Script run successfully!</string>
+    <string name="script_run_success">Initialized!</string>
     <string name="give_permission_toast_msg">Please give storage permission first!</string>
     <string name="subtitle">Middleware to download fictions</string>
     <string name="ficsave">Ficsave</string>

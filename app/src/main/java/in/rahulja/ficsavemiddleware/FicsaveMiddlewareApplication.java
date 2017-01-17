@@ -4,21 +4,33 @@ import android.app.Application;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.Tracker;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 
 public class FicsaveMiddlewareApplication extends Application {
-    private Tracker mTracker;
+    private Tracker mGTracker;
+    private FirebaseAnalytics mFTracker;
 
     /**
      * Gets the default {@link Tracker} for this {@link Application}.
+     *
      * @return tracker
      */
-    synchronized public Tracker getDefaultTracker() {
-        if (mTracker == null) {
+    synchronized public Tracker getDefaultGATracker() {
+        if (mGTracker == null) {
             GoogleAnalytics analytics = GoogleAnalytics.getInstance(this);
-            // To enable debug logging use: adb shell setprop log.tag.GAv4 DEBUG
-            mTracker = analytics.newTracker(R.xml.global_tracker);
+            mGTracker = analytics.newTracker(R.xml.global_tracker);
+            mGTracker.enableAdvertisingIdCollection(true);
+            mGTracker.enableExceptionReporting(true);
         }
-        return mTracker;
+        return mGTracker;
+    }
+
+    synchronized public FirebaseAnalytics getDefaultFATracker() {
+        if (mFTracker == null) {
+            mFTracker = FirebaseAnalytics.getInstance(this);
+            mFTracker.setAnalyticsCollectionEnabled(true);
+        }
+        return mFTracker;
     }
 }

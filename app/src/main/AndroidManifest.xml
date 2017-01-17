@@ -14,8 +14,11 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:name=".FicsaveMiddlewareApplication"
-        tools:node="replace"
         android:theme="@style/AppTheme">
+
+        <meta-data android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
         <activity
             android:name=".MainActivity"
             android:launchMode="singleInstance">
@@ -41,6 +44,23 @@
         <activity
             android:name=".FicSettingsActivity"
             android:label="@string/title_fic_activity_settings" />
+        <service
+            android:name=".MyFirebaseMessagingService"
+            android:enabled="true"
+            android:exported="true"
+            tools:ignore="ExportedService">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
+        <service
+            android:exported="true"
+            android:name=".MyFirebaseInstanceIDService"
+            tools:ignore="ExportedService">
+            <intent-filter>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>

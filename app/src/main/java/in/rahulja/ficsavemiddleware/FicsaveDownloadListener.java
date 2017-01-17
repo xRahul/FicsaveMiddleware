@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -19,6 +20,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 class FicsaveDownloadListener implements DownloadListener {
     private static final String OPEN_FILE_PREFERENCE = "open_file_preference";
@@ -35,13 +37,15 @@ class FicsaveDownloadListener implements DownloadListener {
 
     private long fileDownloadId;
     private String fileName;
-    private Tracker mTracker;
+    private Tracker mGTracker;
+    private FirebaseAnalytics mFTracker;
 
     FicsaveDownloadListener(MainActivity context) {
         mContext = context;
         prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
         FicsaveMiddlewareApplication application = (FicsaveMiddlewareApplication) mContext.getApplication();
-        mTracker = application.getDefaultTracker();
+        mGTracker = application.getDefaultGATracker();
+        mFTracker = application.getDefaultFATracker();
     }
 
     @Override
@@ -110,12 +114,12 @@ class FicsaveDownloadListener implements DownloadListener {
                     // the mail content
                     String content =
                             "Hi" +
-                            "\n\n" +
-                            "Hope you enjoy the story!" +
-                            "\n\n" +
-                            "Ficsave.xyz is a creation of https://github.com/waylaidwanderer" +
-                            "\n" +
-                            "and FicsaveMiddleware is created by https://github.com/xRahul.";
+                                    "\n\n" +
+                                    "Hope you enjoy the story!" +
+                                    "\n\n" +
+                                    "Ficsave.xyz is a creation of https://github.com/waylaidwanderer" +
+                                    "\n" +
+                                    "and FicsaveMiddleware is created by https://github.com/xRahul.";
                     emailIntent.putExtra(Intent.EXTRA_TEXT, content);
                     mContext.startActivity(emailIntent);
 
@@ -126,12 +130,16 @@ class FicsaveDownloadListener implements DownloadListener {
 
                 mContext.unregisterReceiver(this);
 
-                mTracker.send(new HitBuilders.EventBuilder()
+                mGTracker.send(new HitBuilders.EventBuilder()
                         .setCategory("DownloadListenerCategory")
                         .setAction("Download Complete")
                         .setLabel("File: " + fileName)
                         .setValue(1)
                         .build());
+                Bundle bundle = new Bundle();
+                bundle.putString("File", fileName);
+                mFTracker.logEvent("DownloadComplete", bundle);
+
             }
         };
         // Registers function to listen to the completion of the download.
@@ -173,11 +181,14 @@ class FicsaveDownloadListener implements DownloadListener {
         Toast.makeText(mContext, R.string.downloading_file_toast_msg, //To notify the Client that the file is being downloaded
                 Toast.LENGTH_LONG).show();
 
-        mTracker.send(new HitBuilders.EventBuilder()
+        mGTracker.send(new HitBuilders.EventBuilder()
                 .setCategory("DownloadListenerCategory")
                 .setAction("Download Enqueued")
                 .setLabel("File: " + fileName)
                 .setValue(1)
                 .build());
+        Bundle bundle = new Bundle();
+        bundle.putString("File", fileName);
+        mFTracker.logEvent("DownloadEnqueued", bundle);
     }
 }

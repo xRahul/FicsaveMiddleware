@@ -15,8 +15,7 @@ class FicsaveWebChromeClient extends WebChromeClient {
     }
 
     @Override
-    public boolean onJsAlert(WebView view, String url, String message, final android.webkit.JsResult result)
-    {
+    public boolean onJsAlert(WebView view, String url, String message, final android.webkit.JsResult result) {
         Log.d("ficsaveM/JSalert", message);
         Toast.makeText(mActivity, message, Toast.LENGTH_LONG).show();
         result.confirm();
@@ -34,7 +33,7 @@ class FicsaveWebChromeClient extends WebChromeClient {
         mActivity.progressHorizontalLoader(newProgress); //Make the bar disappear after URL is loaded
 
         // Return the app name after finish loading
-        if(newProgress == 100) {
+        if (newProgress == 100) {
             mActivity.setTitle(R.string.app_name);
             mActivity.hideHorizontalLoader();
         }

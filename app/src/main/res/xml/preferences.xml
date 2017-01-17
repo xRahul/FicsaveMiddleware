@@ -16,27 +16,27 @@
             android:title="@string/download_file" />
         <SwitchPreference
             android:defaultValue="true"
+            android:dependency="download_file_preference"
             android:key="open_file_preference"
-            android:title="@string/open_file"
             android:summary="@string/open_file_summary"
-            android:dependency="download_file_preference" />
+            android:title="@string/open_file" />
         <SwitchPreference
             android:defaultValue="false"
+            android:dependency="download_file_preference"
             android:key="send_email_device_preference"
-            android:title="@string/send_email_from_device"
             android:summary="@string/send_email_from_device_summary"
-            android:dependency="download_file_preference" />
+            android:title="@string/send_email_from_device" />
         <SwitchPreference
             android:defaultValue="false"
             android:key="send_email_site_preference"
             android:summary="@string/send_email_with_file_from_site_summary"
             android:title="@string/send_email_with_file_from_site" />
         <EditTextPreference
+            android:key="email_address_to_send_to"
             android:selectAllOnFocus="true"
             android:singleLine="true"
-            android:key="email_address_to_send_to"
-            android:title="@string/enter_email"
-            android:summary="@string/email_address_summary" />
+            android:summary="@string/email_address_summary"
+            android:title="@string/enter_email" />
 
     </PreferenceCategory>
 </PreferenceScreen>

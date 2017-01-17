@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/colorPrimary"
     android:elevation="4dp"
-    android:title="@string/ficsave"
     android:subtitle="@string/subtitle"
     android:theme="@style/ThemeOverlay.AppCompat.Dark"
-    android:layout_width="match_parent"
-    tools:targetApi="lollipop" >
-        <include
-            android:id="@+id/progressBarCircle"
-            layout="@layout/action_view_progress"
-            android:visibility="visible" />
-    </android.support.v7.widget.Toolbar>
+    android:title="@string/ficsave"
+    tools:targetApi="lollipop">
+
+    <include
+        android:id="@+id/progressBarCircle"
+        layout="@layout/action_view_progress"
+        android:visibility="visible" />
+</android.support.v7.widget.Toolbar>

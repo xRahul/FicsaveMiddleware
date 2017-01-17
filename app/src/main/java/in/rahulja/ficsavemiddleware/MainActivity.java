@@ -25,6 +25,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import java.util.regex.Matcher;
 
@@ -39,7 +40,8 @@ public class MainActivity extends AppCompatActivity {
     private ProgressBar pbCircle;
     private WebView mWebview;
     private SharedPreferences prefs;
-    private Tracker mTracker;
+    private Tracker mGTracker;
+    private FirebaseAnalytics mFTracker;
 
     private String ficUrl = "";
 
@@ -58,7 +60,8 @@ public class MainActivity extends AppCompatActivity {
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
         FicsaveMiddlewareApplication application = (FicsaveMiddlewareApplication) getApplication();
-        mTracker = application.getDefaultTracker();
+        mGTracker = application.getDefaultGATracker();
+        mFTracker = application.getDefaultFATracker();
 
 
         // Attaching the layout to the toolbar object
@@ -72,10 +75,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        mTracker.setScreenName("Homepage");
-        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+        mGTracker.setScreenName("Homepage");
+        mGTracker.send(new HitBuilders.ScreenViewBuilder().build());
     }
-
 
 
     @Override
@@ -132,35 +134,35 @@ public class MainActivity extends AppCompatActivity {
 
     public void showTitleProgressSpinner() {
         // Show progress item
-        if(pbCircle != null) {
+        if (pbCircle != null) {
             pbCircle.setVisibility(View.VISIBLE);
         }
     }
 
     public void hideTitleProgressSpinner() {
         // Hide progress item
-        if(pbCircle != null) {
+        if (pbCircle != null) {
             pbCircle.setVisibility(View.INVISIBLE);
         }
     }
 
     public void progressHorizontalLoader(int position) {
         // progress the bar
-        if(pbHorizontal != null) {
+        if (pbHorizontal != null) {
             pbHorizontal.setProgress(position);
         }
     }
 
     public void hideHorizontalLoader() {
         // Hide progress item
-        if(pbHorizontal != null) {
+        if (pbHorizontal != null) {
             pbHorizontal.setVisibility(View.INVISIBLE);
         }
     }
 
     public void showHorizontalLoader() {
         // Show progress item
-        if(pbHorizontal != null) {
+        if (pbHorizontal != null) {
             pbHorizontal.setVisibility(View.VISIBLE);
         }
     }
@@ -188,23 +190,29 @@ public class MainActivity extends AppCompatActivity {
             if (mWebview.getUrl() != null && mWebview.getUrl().contains(urlToLoad)) {
                 runJSonPage(urlToLoad);
 
-                mTracker.send(new HitBuilders.EventBuilder()
+                mGTracker.send(new HitBuilders.EventBuilder()
                         .setCategory("MainPageCategory")
                         .setAction("Running JS - Website already Loaded")
                         .setLabel("Url: " + urlToLoad)
                         .setValue(1)
                         .build());
+                Bundle bundle = new Bundle();
+                bundle.putString("Url", urlToLoad);
+                mFTracker.logEvent("RunningJS_SiteAlreadyLoaded", bundle);
 
             } else {
                 Log.d("ficsaveM/load", urlToLoad);
                 mWebview.loadUrl(urlToLoad);
 
-                mTracker.send(new HitBuilders.EventBuilder()
+                mGTracker.send(new HitBuilders.EventBuilder()
                         .setCategory("MainPageCategory")
                         .setAction("Loading Url")
                         .setLabel("Url: " + urlToLoad)
                         .setValue(1)
                         .build());
+                Bundle bundle = new Bundle();
+                bundle.putString("Url", urlToLoad);
+                mFTracker.logEvent("LoadingUrl", bundle);
             }
         }
     }
@@ -217,12 +225,15 @@ public class MainActivity extends AppCompatActivity {
             url = intent.getData().toString();
             Log.d("ficsaveM/deepLink", url + " " + intent.toString());
 
-            mTracker.send(new HitBuilders.EventBuilder()
+            mGTracker.send(new HitBuilders.EventBuilder()
                     .setCategory("MainPageCategory")
                     .setAction("Deep Link Accessed")
                     .setLabel("Url: " + url)
                     .setValue(1)
                     .build());
+            Bundle bundle = new Bundle();
+            bundle.putString("Url", url);
+            mFTracker.logEvent("DeepLinkAccessed", bundle);
         }
         return url;
     }
@@ -242,12 +253,15 @@ public class MainActivity extends AppCompatActivity {
                         ficUrl = url;
                         Log.d("ficsaveM/setIntFicUrl", "URL extracted: " + url);
 
-                        mTracker.send(new HitBuilders.EventBuilder()
+                        mGTracker.send(new HitBuilders.EventBuilder()
                                 .setCategory("MainPageCategory")
                                 .setAction("Fic Url Set")
                                 .setLabel("Url: " + ficUrl)
                                 .setValue(1)
                                 .build());
+                        Bundle bundle = new Bundle();
+                        bundle.putString("Url", ficUrl);
+                        mFTracker.logEvent("FicUrlSet", bundle);
                     }
                 }
             }
@@ -272,19 +286,23 @@ public class MainActivity extends AppCompatActivity {
                     trackerResult = "Denied";
                     Log.d("ficsaveM/permission", "WRITE_EXTERNAL_STORAGE Permission Denied");
                     Toast.makeText(
-                        getApplicationContext(), 
-                        R.string.give_permission_toast_msg,
-                        Toast.LENGTH_LONG
+                            getApplicationContext(),
+                            R.string.give_permission_toast_msg,
+                            Toast.LENGTH_LONG
                     ).show();
                 }
             }
         }
-        mTracker.send(new HitBuilders.EventBuilder()
+        mGTracker.send(new HitBuilders.EventBuilder()
                 .setCategory("MainPageCategory")
                 .setAction("Permission Requested")
                 .setLabel("WRITE_EXTERNAL_STORAGE: " + trackerResult)
                 .setValue(1)
                 .build());
+        Bundle bundle = new Bundle();
+        bundle.putString("Permission", "WRITE_EXTERNAL_STORAGE");
+        bundle.putString("Access", trackerResult);
+        mFTracker.logEvent("PermissionRequested", bundle);
     }
 
     public void runJSonPage(String url) {
@@ -317,18 +335,16 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void onReceiveValue(String value) {
                             Log.d("ficsaveM/JSrun", "Success, Value: " + value);
-                            Toast.makeText(
-                                    getApplicationContext(),
-                                    R.string.script_run_success,
-                                    Toast.LENGTH_SHORT
-                            ).show();
 
-                            mTracker.send(new HitBuilders.EventBuilder()
+                            mGTracker.send(new HitBuilders.EventBuilder()
                                     .setCategory("MainPageCategory")
                                     .setAction("JS run success")
                                     .setLabel(value)
                                     .setValue(1)
                                     .build());
+                            Bundle bundle = new Bundle();
+                            bundle.putString("Value", value);
+                            mFTracker.logEvent("JSrunSuccess", bundle);
 
                             // empty the fanfic url so it won't get downloaded again somehow
                             ficUrl = "";
@@ -345,14 +361,14 @@ public class MainActivity extends AppCompatActivity {
 
         if (!ficUrl.isEmpty()) {
             jsScript +=
-                "document.getElementsByClassName(\"grey-text text-lighten-1\")[0].className = \"grey-text text-lighten-1 active\";" +
-                "document.getElementById('url').value = \"" + ficUrl + "\";";
+                    "document.getElementsByClassName(\"grey-text text-lighten-1\")[0].className = \"grey-text text-lighten-1 active\";" +
+                            "document.getElementById('url').value = \"" + ficUrl + "\";";
         }
 
         if (prefs.getBoolean(SEND_EMAIL_SITE_PREFERENCE, false)) {
             jsScript +=
-                "document.getElementsByClassName(\"grey-text text-lighten-1\")[2].className = \"grey-text text-lighten-1 active\";" +
-                "document.getElementById('email').value = \"" + prefs.getString(EMAIL_ADDRESS_TO_SEND_TO, "") + "\";";
+                    "document.getElementsByClassName(\"grey-text text-lighten-1\")[2].className = \"grey-text text-lighten-1 active\";" +
+                            "document.getElementById('email').value = \"" + prefs.getString(EMAIL_ADDRESS_TO_SEND_TO, "") + "\";";
         }
 
         switch (prefs.getString(FILE_TYPES_PREFERENCE, "mobi")) {

@@ -12,10 +12,10 @@
         android:visibility="visible" />
 
     <RelativeLayout
+        android:id="@+id/body_main"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/tool_bar"
-        android:id="@+id/body_main">
+        android:layout_below="@+id/tool_bar">
 
         <WebView
             android:id="@+id/main_webview"
@@ -24,13 +24,13 @@
             android:layout_alignParentStart="true" />
 
         <ProgressBar
+            android:id="@+id/progressBarHorizontal"
             style="?android:progressBarStyleHorizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/progressBarHorizontal"
-            android:max="100"
             android:layout_marginBottom="-8dp"
             android:layout_marginTop="-8dp"
+            android:max="100"
             android:progress="0" />
     </RelativeLayout>
 
