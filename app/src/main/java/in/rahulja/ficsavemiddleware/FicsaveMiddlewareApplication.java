@@ -16,7 +16,7 @@ public class FicsaveMiddlewareApplication extends Application {
      *
      * @return tracker
      */
-    synchronized public Tracker getDefaultGATracker() {
+    public synchronized Tracker getDefaultGATracker() {
         if (mGTracker == null) {
             GoogleAnalytics analytics = GoogleAnalytics.getInstance(this);
             mGTracker = analytics.newTracker(R.xml.global_tracker);
@@ -26,7 +26,7 @@ public class FicsaveMiddlewareApplication extends Application {
         return mGTracker;
     }
 
-    synchronized public FirebaseAnalytics getDefaultFATracker() {
+    public synchronized FirebaseAnalytics getDefaultFATracker() {
         if (mFTracker == null) {
             mFTracker = FirebaseAnalytics.getInstance(this);
             mFTracker.setAnalyticsCollectionEnabled(true);

@@ -16,6 +16,7 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 
 class FicsaveWebViewClient extends WebViewClient {
 
+    private static final String URL_LABEL = "Url: ";
     private MainActivity mActivity;
     private Tracker mGTracker;
     private FirebaseAnalytics mFTracker;
@@ -39,7 +40,7 @@ class FicsaveWebViewClient extends WebViewClient {
         mGTracker.send(new HitBuilders.EventBuilder()
                 .setCategory("WebViewClientCategory")
                 .setAction("Other Url than ficsave Opened")
-                .setLabel("Url: " + url)
+                .setLabel(URL_LABEL + url)
                 .setValue(1)
                 .build());
         Bundle bundle = new Bundle();
@@ -67,11 +68,11 @@ class FicsaveWebViewClient extends WebViewClient {
     @Override
     @SuppressWarnings("deprecation")
     public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
-        Log.d("ficsaveM/ErrorLoading", "Url: " + failingUrl + " Reason" + description);
+        Log.d("ficsaveM/ErrorLoading", URL_LABEL + failingUrl + " Reason" + description);
         mGTracker.send(new HitBuilders.EventBuilder()
                 .setCategory("WebViewClientCategory")
                 .setAction("Page Load Error")
-                .setLabel("Url: " + failingUrl + " Reason" + description)
+                .setLabel(URL_LABEL + failingUrl + " Reason" + description)
                 .setValue(1)
                 .build());
         Bundle bundle = new Bundle();

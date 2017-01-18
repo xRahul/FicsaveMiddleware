@@ -32,9 +32,11 @@ import java.util.regex.Matcher;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static final String FILE_TYPES_PREFERENCE = "file_types_preference";
-    public static final String SEND_EMAIL_SITE_PREFERENCE = "send_email_site_preference";
-    public static final String EMAIL_ADDRESS_TO_SEND_TO = "email_address_to_send_to";
+    private static final String FILE_TYPES_PREFERENCE = "file_types_preference";
+    private static final String SEND_EMAIL_SITE_PREFERENCE = "send_email_site_preference";
+    private static final String EMAIL_ADDRESS_TO_SEND_TO = "email_address_to_send_to";
+    private static final String MAIN_PAGE_CATEGORY = "MainPageCategory";
+    private static final String URL_LABEL = "Url: ";
     private static final int PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1;
     private ProgressBar pbHorizontal;
     private ProgressBar pbCircle;
@@ -42,7 +44,6 @@ public class MainActivity extends AppCompatActivity {
     private SharedPreferences prefs;
     private Tracker mGTracker;
     private FirebaseAnalytics mFTracker;
-
     private String ficUrl = "";
 
     @Override
@@ -173,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
         // set fanfic url as main
         setIntentFicUrl();
 
-        String intent_view_url = getIntentViewUrl();
+        String intentViewUrl = getIntentViewUrl();
 
         if (mWebview != null) {
             // set listeners and clients to webview
@@ -186,14 +187,14 @@ public class MainActivity extends AppCompatActivity {
 
             // load the ficsave homepage
             String ficsaveHomePage = "http://" + getString(R.string.ficsave_host);
-            String urlToLoad = intent_view_url.isEmpty() ? ficsaveHomePage : intent_view_url;
+            String urlToLoad = intentViewUrl.isEmpty() ? ficsaveHomePage : intentViewUrl;
             if (mWebview.getUrl() != null && mWebview.getUrl().contains(urlToLoad)) {
                 runJSonPage(urlToLoad);
 
                 mGTracker.send(new HitBuilders.EventBuilder()
-                        .setCategory("MainPageCategory")
+                        .setCategory(MAIN_PAGE_CATEGORY)
                         .setAction("Running JS - Website already Loaded")
-                        .setLabel("Url: " + urlToLoad)
+                        .setLabel(URL_LABEL + urlToLoad)
                         .setValue(1)
                         .build());
                 Bundle bundle = new Bundle();
@@ -205,9 +206,9 @@ public class MainActivity extends AppCompatActivity {
                 mWebview.loadUrl(urlToLoad);
 
                 mGTracker.send(new HitBuilders.EventBuilder()
-                        .setCategory("MainPageCategory")
+                        .setCategory(MAIN_PAGE_CATEGORY)
                         .setAction("Loading Url")
-                        .setLabel("Url: " + urlToLoad)
+                        .setLabel(URL_LABEL + urlToLoad)
                         .setValue(1)
                         .build());
                 Bundle bundle = new Bundle();
@@ -226,9 +227,9 @@ public class MainActivity extends AppCompatActivity {
             Log.d("ficsaveM/deepLink", url + " " + intent.toString());
 
             mGTracker.send(new HitBuilders.EventBuilder()
-                    .setCategory("MainPageCategory")
+                    .setCategory(MAIN_PAGE_CATEGORY)
                     .setAction("Deep Link Accessed")
-                    .setLabel("Url: " + url)
+                    .setLabel(URL_LABEL + url)
                     .setValue(1)
                     .build());
             Bundle bundle = new Bundle();
@@ -245,25 +246,24 @@ public class MainActivity extends AppCompatActivity {
             String intentType = intent.getType();
             String intentAction = intent.getAction();
             Log.d("ficsaveM/intentReceived", intentAction + " " + intent.toString());
-            if (Intent.ACTION_SEND.equals(intentAction) && intentType != null) {
-                if (intentType.equals("text/plain")) {
-                    Matcher m = Patterns.WEB_URL.matcher(intent.getStringExtra(Intent.EXTRA_TEXT));
-                    while (m.find()) {
-                        String url = m.group();
-                        ficUrl = url;
-                        Log.d("ficsaveM/setIntFicUrl", "URL extracted: " + url);
+            if (Intent.ACTION_SEND.equals(intentAction) && intentType != null && "text/plain".equals(intentType)) {
+                Matcher m = Patterns.WEB_URL.matcher(intent.getStringExtra(Intent.EXTRA_TEXT));
+                while (m.find()) {
+                    String url = m.group();
+                    ficUrl = url;
+                    Log.d("ficsaveM/setIntFicUrl", "URL extracted: " + url);
 
-                        mGTracker.send(new HitBuilders.EventBuilder()
-                                .setCategory("MainPageCategory")
-                                .setAction("Fic Url Set")
-                                .setLabel("Url: " + ficUrl)
-                                .setValue(1)
-                                .build());
-                        Bundle bundle = new Bundle();
-                        bundle.putString("Url", ficUrl);
-                        mFTracker.logEvent("FicUrlSet", bundle);
-                    }
+                    mGTracker.send(new HitBuilders.EventBuilder()
+                            .setCategory(MAIN_PAGE_CATEGORY)
+                            .setAction("Fic Url Set")
+                            .setLabel(URL_LABEL + ficUrl)
+                            .setValue(1)
+                            .build());
+                    Bundle bundle = new Bundle();
+                    bundle.putString("Url", ficUrl);
+                    mFTracker.logEvent("FicUrlSet", bundle);
                 }
+
             }
         }
     }
@@ -271,30 +271,27 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(
             int requestCode,
-            @NonNull String permissions[],
+            @NonNull String[] permissions,
             @NonNull int[] grantResults
     ) {
         String trackerResult = "";
-        switch (requestCode) {
-            case PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    trackerResult = "Granted";
-                    init();
-                } else {
-                    trackerResult = "Denied";
-                    Log.d("ficsaveM/permission", "WRITE_EXTERNAL_STORAGE Permission Denied");
-                    Toast.makeText(
-                            getApplicationContext(),
-                            R.string.give_permission_toast_msg,
-                            Toast.LENGTH_LONG
-                    ).show();
-                }
+        if (requestCode == PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE) {
+            if (grantResults.length > 0
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                trackerResult = "Granted";
+                init();
+            } else {
+                trackerResult = "Denied";
+                Log.d("ficsaveM/permission", "WRITE_EXTERNAL_STORAGE Permission Denied");
+                Toast.makeText(
+                        getApplicationContext(),
+                        R.string.give_permission_toast_msg,
+                        Toast.LENGTH_LONG
+                ).show();
             }
         }
         mGTracker.send(new HitBuilders.EventBuilder()
-                .setCategory("MainPageCategory")
+                .setCategory(MAIN_PAGE_CATEGORY)
                 .setAction("Permission Requested")
                 .setLabel("WRITE_EXTERNAL_STORAGE: " + trackerResult)
                 .setValue(1)
@@ -331,16 +328,7 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void onReceiveValue(String value) {
                             Log.d("ficsaveM/JSrun", "Success, Value: " + value);
-
-                            mGTracker.send(new HitBuilders.EventBuilder()
-                                    .setCategory("MainPageCategory")
-                                    .setAction("JS run success")
-                                    .setLabel(value)
-                                    .setValue(1)
-                                    .build());
-                            Bundle bundle = new Bundle();
-                            bundle.putString("Value", value);
-                            mFTracker.logEvent("JSrunSuccess", bundle);
+                            trackJsRunSuccess(value);
 
                             // empty the fanfic url so it won't get downloaded again somehow
                             ficUrl = "";
@@ -349,6 +337,18 @@ public class MainActivity extends AppCompatActivity {
                 }
             }, 2000);
         }
+    }
+
+    private void trackJsRunSuccess(String value) {
+        mGTracker.send(new HitBuilders.EventBuilder()
+                .setCategory(MAIN_PAGE_CATEGORY)
+                .setAction("JS run success")
+                .setLabel(value)
+                .setValue(1)
+                .build());
+        Bundle bundle = new Bundle();
+        bundle.putString("Value", value);
+        mFTracker.logEvent("JSrunSuccess", bundle);
     }
 
     private String getJsScript() {
@@ -379,6 +379,8 @@ public class MainActivity extends AppCompatActivity {
             case "txt":
                 jsScript += "document.getElementsByClassName('select-dropdown')[0].value = \"Text\";" +
                         "document.getElementsByName('format')[0].value = \"txt\";";
+                break;
+            default:
                 break;
         }
 

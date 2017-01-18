@@ -34,6 +34,7 @@ public class SettingsFragment extends PreferenceFragment
     public static final String EMAIL_ADDRESS_TO_SEND_TO = "email_address_to_send_to";
     public static final String PREF_VERSION = "version";
     public static final String PREF_DEVELOPER = "developer";
+    public static final String SETTINGS_CATEGORY = "SettingsCategory";
     private OnSharedPreferenceChangeListener listener;
     private Preference emailAddressPref;
     private SharedPreferences prefs;
@@ -104,29 +105,54 @@ public class SettingsFragment extends PreferenceFragment
                     ucon.setInstanceFollowRedirects(false);
                     URL secondURL = new URL(ucon.getHeaderField("Location"));
                     String secondUrl = String.valueOf(secondURL);
-                    String latest_version = Uri.parse(secondUrl).getLastPathSegment();
+                    String latestVersion = Uri.parse(secondUrl).getLastPathSegment();
                     Log.d("ficsaveM/updateUrl", secondUrl);
-                    String checkUrl = getString(R.string.current_release_url_prefix) + BuildConfig.VERSION_NAME;
-                    if (secondUrl.equals(checkUrl)) {
-                        versionSummary = BuildConfig.VERSION_NAME + " " +
-                                getString(R.string.version_summary_latest);
-                    } else {
-                        versionSummary = BuildConfig.VERSION_NAME + " " +
-                                "(" + getString(R.string.version_summary_changed_latest) + latest_version + ")";
-                        latestVersionUrl = secondUrl;
-                    }
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            versionPref.setSummary(versionSummary);
+                    trackAppUrlFetch(secondUrl);
+                    if (getActivity() != null) {
+                        String checkUrl = getString(R.string.current_release_url_prefix) + BuildConfig.VERSION_NAME;
+                        if (secondUrl.equals(checkUrl)) {
+                            versionSummary = BuildConfig.VERSION_NAME + " " +
+                                    getString(R.string.version_summary_latest);
+                        } else {
+                            versionSummary = BuildConfig.VERSION_NAME + " " +
+                                    "(" + getString(R.string.version_summary_changed_latest) + latestVersion + ")";
+                            latestVersionUrl = secondUrl;
                         }
-                    });
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                versionPref.setSummary(versionSummary);
+                                Log.d("ficsaveM/versionChecked", versionSummary);
+                                mGTracker.send(new HitBuilders.EventBuilder()
+                                        .setCategory(SETTINGS_CATEGORY)
+                                        .setAction("versionSummaryChanged")
+                                        .setLabel(versionSummary)
+                                        .setValue(1)
+                                        .build());
+                                Bundle bundle = new Bundle();
+                                bundle.putString("Summary", versionSummary);
+                                mFTracker.logEvent("versionSummaryChanged", bundle);
+                            }
+                        });
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
         });
         thread.start();
+    }
+
+    private void trackAppUrlFetch(String secondUrl) {
+        mGTracker.send(new HitBuilders.EventBuilder()
+                .setCategory(SETTINGS_CATEGORY)
+                .setAction("latestAppUrlFetched")
+                .setLabel(secondUrl)
+                .setValue(1)
+                .build());
+        Bundle bundle = new Bundle();
+        bundle.putString("Url", secondUrl);
+        mFTracker.logEvent("latestAppUrlFetched", bundle);
     }
 
     private void initializePreferenceListener() {
@@ -147,6 +173,15 @@ public class SettingsFragment extends PreferenceFragment
         developerPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             public boolean onPreferenceClick(Preference developerPref) {
                 Log.d("ficsaveM/developerClick", developerPref.toString());
+                mGTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory(SETTINGS_CATEGORY)
+                        .setAction("developerPreferenceClicked")
+                        .setLabel(developerPref.toString())
+                        .setValue(1)
+                        .build());
+                Bundle bundle = new Bundle();
+                bundle.putString("pref", developerPref.toString());
+                mFTracker.logEvent("developerPreferenceClicked", bundle);
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.developer_url)));
                 startActivity(intent);
                 // DialogFragment dialog = new DeveloperDialogFragment();
@@ -165,6 +200,15 @@ public class SettingsFragment extends PreferenceFragment
                     startActivity(intent);
                 }
                 Log.d("ficsaveM/versionClick", versionPref.toString());
+                mGTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory(SETTINGS_CATEGORY)
+                        .setAction("versionPreferenceClicked")
+                        .setLabel(versionPref.toString())
+                        .setValue(1)
+                        .build());
+                Bundle bundle = new Bundle();
+                bundle.putString("pref", versionPref.toString());
+                mFTracker.logEvent("versionPreferenceClicked", bundle);
                 return true;
             }
         });
@@ -249,11 +293,13 @@ public class SettingsFragment extends PreferenceFragment
                             emailAddressPref.setSummary(emailAddress);
                         }
                         break;
+                    default:
+                        break;
                 }
                 updatePreferenceView();
 
                 mGTracker.send(new HitBuilders.EventBuilder()
-                        .setCategory("SettingsCategory")
+                        .setCategory(SETTINGS_CATEGORY)
                         .setAction("SharedPreferenceChanged: " + key)
                         .setLabel(sPrefs.getAll().toString())
                         .setValue(1)
@@ -284,12 +330,12 @@ public class SettingsFragment extends PreferenceFragment
 
     @Override
     public void onDialogPositiveClick(DialogFragment dialog) {
-
+        // empty
     }
 
     @Override
     public void onDialogNegativeClick(DialogFragment dialog) {
-
+        // empty
     }
 }
 
