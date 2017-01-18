@@ -39,4 +39,17 @@
             android:title="@string/enter_email" />
 
     </PreferenceCategory>
+    <PreferenceCategory android:title="About">
+        <PreferenceScreen
+            android:title="Developer"
+            android:key="developer"
+            android:summary="@string/developer_name">
+        </PreferenceScreen>
+        <PreferenceScreen
+            android:title="Version"
+            android:key="version"
+            android:summary="">
+        </PreferenceScreen>
+    </PreferenceCategory>
+
 </PreferenceScreen>

@@ -32,4 +32,13 @@
     <string name="invalid_fic_url">Invalid URL:</string>
     <string name="script_run_start">Running script…</string>
     <string name="filter_title_open_ficsave_site">Ficsave Middleware</string>
+    <string name="latest_release_url">https://github.com/xRahul/FicsaveMiddleware/releases/latest</string>
+    <string name="current_release_url_prefix">https://github.com/xRahul/FicsaveMiddleware/releases/tag/</string>
+    <string name="version_summary_latest">" (latest)"</string>
+    <string name="version_summary_changed_latest">"Click to get latest version: "</string>
+    <string name="developer_name">Rahul Jain - http://rahulja.in</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="developer_url">http://rahulja.in</string>
 </resources>

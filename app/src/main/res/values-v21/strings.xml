@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="latest_release_url">https://github.com/xRahul/FicsaveMiddleware/releases/latest</string>
+    <string name="current_release_url_prefix">https://github.com/xRahul/FicsaveMiddleware/releases/tag/</string>
+    <string name="version_summary_latest">" (latest)"</string>
+    <string name="version_summary_changed_latest">"Click to get latest version: "</string>
+    <string name="developer_name">Rahul Jain - http://rahulja.in</string>
+    <string name="developer_url">http://rahulja.in</string>
+</resources>

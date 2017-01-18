@@ -32,11 +32,14 @@ dependencies {
     compile "com.android.support:appcompat-v7:${rootProject.ext.supportLibVersion}"
     compile "com.android.support:design:${rootProject.ext.supportLibVersion}"
     compile "com.android.support:support-v4:${rootProject.ext.supportLibVersion}"
+    compile "com.android.support:preference-v7:${rootProject.ext.supportLibVersion}"
     compile "com.android.support:support-vector-drawable:${rootProject.ext.supportLibVersion}"
     compile "com.google.android.gms:play-services-analytics:${rootProject.ext.gmsFirebaseVersion}"
     compile "com.google.firebase:firebase-messaging:${rootProject.ext.gmsFirebaseVersion}"
     compile "com.google.firebase:firebase-core:${rootProject.ext.gmsFirebaseVersion}"
+    compile 'com.android.support:support-v4:25.1.0'
     testCompile 'junit:junit:4.12'
 }
+
 
 apply plugin: 'com.google.gms.google-services'

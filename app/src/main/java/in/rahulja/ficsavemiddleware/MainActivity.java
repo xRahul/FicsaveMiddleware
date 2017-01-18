@@ -32,10 +32,10 @@ import java.util.regex.Matcher;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final int PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1;
     public static final String FILE_TYPES_PREFERENCE = "file_types_preference";
     public static final String SEND_EMAIL_SITE_PREFERENCE = "send_email_site_preference";
     public static final String EMAIL_ADDRESS_TO_SEND_TO = "email_address_to_send_to";
+    private static final int PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1;
     private ProgressBar pbHorizontal;
     private ProgressBar pbCircle;
     private WebView mWebview;
@@ -323,11 +323,7 @@ public class MainActivity extends AppCompatActivity {
 
             // Execute Javascript on a new thread 2 second after page load
             Log.d("ficsaveM/JSrun", "Start");
-            Toast.makeText(
-                    getApplicationContext(),
-                    R.string.script_run_start,
-                    Toast.LENGTH_SHORT
-            ).show();
+
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
