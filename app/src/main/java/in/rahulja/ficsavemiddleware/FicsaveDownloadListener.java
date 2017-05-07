@@ -22,6 +22,19 @@ import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.text.DateFormat;
+import java.util.Date;
+
 class FicsaveDownloadListener implements DownloadListener {
     private static final String OPEN_FILE_PREFERENCE = "open_file_preference";
     private static final String SEND_EMAIL_DEVICE_PREFERENCE = "send_email_device_preference";
@@ -41,6 +54,7 @@ class FicsaveDownloadListener implements DownloadListener {
     private String fileName;
     private Tracker mGTracker;
     private FirebaseAnalytics mFTracker;
+    private static final String DOWNLOAD_HISTORY_FILENAME = "fm_download_history.json";
 
     FicsaveDownloadListener(MainActivity context) {
         mContext = context;
@@ -77,6 +91,38 @@ class FicsaveDownloadListener implements DownloadListener {
                     return;
                 // Grabs the Uri for the file that was downloaded.
                 Uri mostRecentDownload = mDownloadManager.getUriForDownloadedFile(fileDownloadId);
+                JSONArray jsonArray = new JSONArray();
+                try {
+                    FileInputStream fis = mContext.openFileInput(DOWNLOAD_HISTORY_FILENAME);
+                    String historyFileData = convertStreamToString(fis);
+                    jsonArray = new JSONArray(historyFileData);
+                    fis.close();
+                } catch (Exception e) {
+                    Log.e("FM/Error", e.toString());
+                }
+
+                JSONObject newFileData = new JSONObject();
+                try {
+                    newFileData.put("name", fileName);
+                    newFileData.put("path", mostRecentDownload);
+                    newFileData.put("datetime", DateFormat.getDateTimeInstance().format(new Date()));
+                    Log.d("FM/FILE_DATA", jsonArray.toString());
+                    Log.d("FM/NEW_FILE_DATA", newFileData.toString());
+                    jsonArray.put(newFileData);
+                } catch (JSONException e) {
+                    Log.e("FM/Error", e.toString());
+                }
+
+
+                FileOutputStream fos = null;
+                try {
+                    fos = mContext.openFileOutput(DOWNLOAD_HISTORY_FILENAME, Context.MODE_PRIVATE);
+                    fos.write(jsonArray.toString().getBytes());
+                    fos.close();
+                } catch (IOException e) {
+                    Log.e("FM/Error", e.toString());
+                }
+
                 if (prefs.getBoolean(OPEN_FILE_PREFERENCE, true))
                     openFileOnDevice(mostRecentDownload);
                 if (prefs.getBoolean(SEND_EMAIL_DEVICE_PREFERENCE, true))
@@ -196,5 +242,16 @@ class FicsaveDownloadListener implements DownloadListener {
         Bundle bundle = new Bundle();
         bundle.putString("File", fileName);
         mFTracker.logEvent("DownloadEnqueued", bundle);
+    }
+
+    static String convertStreamToString(InputStream is) throws Exception {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        StringBuilder sb = new StringBuilder();
+        String line;
+        while ((line = reader.readLine()) != null) {
+            sb.append(line).append("\n");
+        }
+        reader.close();
+        return sb.toString();
     }
 }

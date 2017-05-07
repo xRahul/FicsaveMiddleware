@@ -29,7 +29,7 @@ public class FicsaveMiddlewareApplication extends Application {
     public synchronized FirebaseAnalytics getDefaultFATracker() {
         if (mFTracker == null) {
             mFTracker = FirebaseAnalytics.getInstance(this);
-            mFTracker.setAnalyticsCollectionEnabled(true);
+            mFTracker.setAnalyticsCollectionEnabled(false);
         }
         return mFTracker;
     }

@@ -22,6 +22,7 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Map;
 
 
 public class SettingsFragment extends PreferenceFragment
@@ -34,7 +35,9 @@ public class SettingsFragment extends PreferenceFragment
     public static final String EMAIL_ADDRESS_TO_SEND_TO = "email_address_to_send_to";
     public static final String PREF_VERSION = "version";
     public static final String PREF_DEVELOPER = "developer";
+    public static final String PREF_PRIVACY_POLICY = "privacy_policy";
     public static final String SETTINGS_CATEGORY = "SettingsCategory";
+    public static final String INVALID_EMAIL = "Invalid Email";
     private OnSharedPreferenceChangeListener listener;
     private Preference emailAddressPref;
     private SharedPreferences prefs;
@@ -44,6 +47,7 @@ public class SettingsFragment extends PreferenceFragment
     private Preference versionPref;
     private String latestVersionUrl;
     private Preference developerPref;
+    private Preference privacyPolicyPref;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -62,9 +66,11 @@ public class SettingsFragment extends PreferenceFragment
     }
 
     private void initPreferenceView() {
+        latestVersionUrl = getString(R.string.latest_release_url);
         emailAddressPref = findPreference(EMAIL_ADDRESS_TO_SEND_TO);
         versionPref = findPreference(PREF_VERSION);
         developerPref = findPreference(PREF_DEVELOPER);
+        privacyPolicyPref = findPreference(PREF_PRIVACY_POLICY);
     }
 
     private void updatePreferenceView() {
@@ -90,6 +96,7 @@ public class SettingsFragment extends PreferenceFragment
         emailAddressPref = findPreference(EMAIL_ADDRESS_TO_SEND_TO);
         emailAddressPref.setSummary(tempSummary);
         developerPref = findPreference(PREF_DEVELOPER);
+        privacyPolicyPref = findPreference(PREF_PRIVACY_POLICY);
 
         initializePreferenceListener();
     }
@@ -116,8 +123,8 @@ public class SettingsFragment extends PreferenceFragment
                         } else {
                             versionSummary = BuildConfig.VERSION_NAME + " " +
                                     "(" + getString(R.string.version_summary_changed_latest) + latestVersion + ")";
-                            latestVersionUrl = secondUrl;
                         }
+
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -167,6 +174,8 @@ public class SettingsFragment extends PreferenceFragment
         initializeVersionPreferenceClickListener();
 
         initializeDeveloperPreferenceClickListener();
+
+        initializePrivacyPolicyPreferenceClickListener();
     }
 
     private void initializeDeveloperPreferenceClickListener() {
@@ -194,11 +203,9 @@ public class SettingsFragment extends PreferenceFragment
     private void initializeVersionPreferenceClickListener() {
         versionPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             public boolean onPreferenceClick(Preference versionPref) {
-                if (versionPref.getSummary().toString()
-                        .contains(getString(R.string.version_summary_changed_latest))) {
-                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(latestVersionUrl));
-                    startActivity(intent);
-                }
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(latestVersionUrl));
+                startActivity(intent);
+
                 Log.d("ficsaveM/versionClick", versionPref.toString());
                 mGTracker.send(new HitBuilders.EventBuilder()
                         .setCategory(SETTINGS_CATEGORY)
@@ -209,6 +216,27 @@ public class SettingsFragment extends PreferenceFragment
                 Bundle bundle = new Bundle();
                 bundle.putString("pref", versionPref.toString());
                 mFTracker.logEvent("versionPreferenceClicked", bundle);
+                return true;
+            }
+        });
+    }
+
+    private void initializePrivacyPolicyPreferenceClickListener() {
+        privacyPolicyPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            public boolean onPreferenceClick(Preference privacyPolicyPref) {
+                Intent intent = new Intent(getActivity().getBaseContext(), TermsActivity.class);
+                startActivity(intent);
+
+                Log.d("ficsaveM/privacyClick", privacyPolicyPref.toString());
+                mGTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory(SETTINGS_CATEGORY)
+                        .setAction("privacyPreferenceClicked")
+                        .setLabel(privacyPolicyPref.toString())
+                        .setValue(1)
+                        .build());
+                Bundle bundle = new Bundle();
+                bundle.putString("pref", privacyPolicyPref.toString());
+                mFTracker.logEvent("privacyPreferenceClicked", bundle);
                 return true;
             }
         });
@@ -240,7 +268,7 @@ public class SettingsFragment extends PreferenceFragment
                             String emailAddress = sPrefs.getString(EMAIL_ADDRESS_TO_SEND_TO, "");
                             if (!Patterns.EMAIL_ADDRESS.matcher(emailAddress).matches()) {
                                 final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                                builder.setTitle("Invalid Email");
+                                builder.setTitle(INVALID_EMAIL);
                                 builder.setMessage("Please enter a valid email address first!");
                                 builder.setPositiveButton(android.R.string.ok, null);
                                 builder.show();
@@ -256,7 +284,7 @@ public class SettingsFragment extends PreferenceFragment
                             String emailAddress = sPrefs.getString(EMAIL_ADDRESS_TO_SEND_TO, "");
                             if (!Patterns.EMAIL_ADDRESS.matcher(emailAddress).matches()) {
                                 final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                                builder.setTitle("Invalid Email");
+                                builder.setTitle(INVALID_EMAIL);
                                 builder.setMessage("Please enter a valid email address first!");
                                 builder.setPositiveButton(android.R.string.ok, null);
                                 builder.show();
@@ -280,7 +308,7 @@ public class SettingsFragment extends PreferenceFragment
                             }
 
                             final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                            builder.setTitle("Invalid Email");
+                            builder.setTitle(INVALID_EMAIL);
                             builder.setMessage("Please enter a valid email address");
                             builder.setPositiveButton(android.R.string.ok, null);
                             builder.show();
@@ -298,15 +326,18 @@ public class SettingsFragment extends PreferenceFragment
                 }
                 updatePreferenceView();
 
+                Map<String, ?> logPrefs = sPrefs.getAll();
+                logPrefs.remove(EMAIL_ADDRESS_TO_SEND_TO);
+
                 mGTracker.send(new HitBuilders.EventBuilder()
                         .setCategory(SETTINGS_CATEGORY)
                         .setAction("SharedPreferenceChanged: " + key)
-                        .setLabel(sPrefs.getAll().toString())
+                        .setLabel(logPrefs.toString())
                         .setValue(1)
                         .build());
                 Bundle bundle = new Bundle();
                 bundle.putString("Key", key);
-                bundle.putString("Preferences", sPrefs.getAll().toString());
+                bundle.putString("Preferences", logPrefs.toString());
                 mFTracker.logEvent("SharedPreferenceChanged", bundle);
             }
         };

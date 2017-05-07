@@ -50,6 +50,10 @@
             android:key="version"
             android:summary="">
         </PreferenceScreen>
+        <PreferenceScreen
+            android:title="Privacy Policy"
+            android:key="privacy_policy">
+        </PreferenceScreen>
     </PreferenceCategory>
 
 </PreferenceScreen>

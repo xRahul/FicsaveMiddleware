@@ -53,12 +53,16 @@ public class MainActivity extends AppCompatActivity {
 
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 
+        prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        if(!prefs.getBoolean("terms_shown", false)) {
+            Intent intent = new Intent(this, TermsActivity.class);
+            startActivity(intent);
+        }
+
         // get progress bars
         pbHorizontal = (ProgressBar) findViewById(R.id.progressBarHorizontal);
         pbCircle = (ProgressBar) findViewById(R.id.progressBarCircle);
         mWebview = (WebView) findViewById(R.id.main_webview);
-
-        prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
         FicsaveMiddlewareApplication application = (FicsaveMiddlewareApplication) getApplication();
         mGTracker = application.getDefaultGATracker();
@@ -129,6 +133,12 @@ public class MainActivity extends AppCompatActivity {
             startActivity(new Intent(this, FicSettingsActivity.class));
             return true;
         }
+
+        if (id == R.id.download_history_settings) {
+            startActivity(new Intent(this, DownloadHistoryActivity.class));
+            return true;
+        }
+
 
         return super.onOptionsItemSelected(item);
     }

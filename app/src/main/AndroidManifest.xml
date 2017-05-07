@@ -4,19 +4,22 @@
     package="in.rahulja.ficsavemiddleware">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
+        android:name=".FicsaveMiddlewareApplication"
         android:allowBackup="true"
         android:fullBackupContent="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:name=".FicsaveMiddlewareApplication"
         android:theme="@style/AppTheme">
-
-        <meta-data android:name="com.google.android.gms.version"
+        <meta-data
+            android:name="firebase_analytics_collection_deactivated"
+            android:value="true" />
+        <meta-data
+            android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
@@ -30,21 +33,26 @@
             android:launchMode="singleInstance">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
+
                 <category android:name="android.intent.category.DEFAULT" />
+
                 <data android:mimeType="text/*" />
             </intent-filter>
             <intent-filter android:label="@string/filter_title_open_ficsave_site">
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <!-- Accepts URIs that begin with "http://ficsave.xyz” -->
-                <data android:scheme="http"
-                    android:host="ficsave.xyz" />
-                <!-- note that the leading "/" is required for pathPrefix-->
+                <data
+                    android:host="ficsave.xyz"
+                    android:scheme="http" />
+                <!-- note that the leading "/" is required for pathPrefix -->
             </intent-filter>
         </activity>
         <activity
@@ -52,13 +60,16 @@
             android:label="@string/title_fic_activity_settings" />
 
         <service
-            android:exported="true"
             android:name=".MyFirebaseInstanceIDService"
+            android:exported="true"
             tools:ignore="ExportedService">
             <intent-filter>
-                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
+
+        <activity android:name=".TermsActivity" />
+        <activity android:name=".DownloadHistoryActivity"></activity>
     </application>
 
 </manifest>
