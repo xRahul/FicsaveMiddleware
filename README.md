@@ -13,6 +13,7 @@ This app supports Android 4.4+
 * Open downloaded eBook by default, or send as attachment via your email app to someone.
 * Added deep link to ficsave.xyz
 * Added google analytics for different events
+* Download History can be seen
 
 ## Screenshots
 
