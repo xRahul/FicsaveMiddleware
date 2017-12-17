@@ -1,0 +1,43 @@
+AntiFeatures:Tracking
+Categories:Reading
+License:Apache-2.0
+Web Site:https://github.com/xRahul/FicsaveMiddleware/blob/HEAD/README.md
+Source Code:https://github.com/xRahul/FicsaveMiddleware
+Issue Tracker:https://github.com/xRahul/FicsaveMiddleware/issues
+Donate:http://rahulja.in
+
+Auto Name:Ficsave Middleware
+Summary:Share url of the fanfic and automatically download or email it as ebook
+Description:
+This is a wrapper around the ficsave.xyz website.  Opening the website, entering
+the url, choosing options can become tedious after you've read your 100th
+fanfiction. This helps you automate the entire process.
+
+This app supports Android 4.4+
+
+Current Features
+
+* Share fic url with the app to automate what happens.
+* choose a default eBook format for further actions.
+* Download ebook to device or send as attachment directly from ficsave website.
+* Open downloaded eBook by default, or send as attachment via your email app to someone.
+* Added deep link to ficsave.xyz
+* Added google analytics for different events
+* Download History can be seen
+
+The app tracks basic events to generate google analytics data. This data is
+being used for debugging purposes only.
+.
+
+Repo Type:git
+Repo:https://github.com/xRahul/FicsaveMiddleware.git
+
+Build:1.5,15
+    commit=1.5
+    subdir=app
+    gradle=yes
+
+Auto Update Mode:Version %v
+Update Check Mode:Tags
+Current Version:1.5
+Current Version Code:15
