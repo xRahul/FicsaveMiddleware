@@ -12,3 +12,7 @@ android:
     - extra-android-m2repository
     - addon-google_apis-google-25
     - add-on
+
+before_script:
+  - wget https://raw.githubusercontent.com/firebase/FirebaseUI-Android/master/library/google-services.json
+  - cp google-services.json app/google-services.json
