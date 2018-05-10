@@ -16,6 +16,7 @@ android:
     - addon-google_apis-google-25
     - add-on
     - sys-img-armeabi-v7a-android-25
+    - sys-img-armeabi-v7a-addon-google_apis-google-25
 
 before_script:
   - cp app/google-services\ \(demo\).json app/google-services.json
