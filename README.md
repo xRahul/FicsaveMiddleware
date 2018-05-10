@@ -1,5 +1,7 @@
 # FicsaveMiddleware
 
+[![Build Status](https://travis-ci.org/xRahul/FicsaveMiddleware.svg?branch=master)](https://travis-ci.org/xRahul/FicsaveMiddleware)
+
 This is a wrapper around the ficsave.xyz website. 
 Opening the website, entering the url, choosing options can become tedious after you've read your 100th fic.
 
