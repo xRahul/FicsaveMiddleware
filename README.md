@@ -4,14 +4,12 @@
 [![Build Status](https://travis-ci.org/xRahul/FicsaveMiddleware.svg?branch=master)](https://travis-ci.org/xRahul/FicsaveMiddleware)
 [![Releases](https://img.shields.io/github/release/xRahul/FicsaveMiddleware.svg)](https://github.com/xRahul/FicsaveMiddleware/releases/latest)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/656060bf06df488ab62d12c5814ec024)](https://www.codacy.com/app/xRahul/FicsaveMiddleware)
+
 [![SonarCloud Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=FicsaveMiddleware%3Aapp&metric=alert_status)](https://sonarcloud.io/dashboard?id=FicsaveMiddleware%3Aapp)
 [![SonarCloud Bugs](https://sonarcloud.io/api/project_badges/measure?project=FicsaveMiddleware%3Aapp&metric=bugs)](https://sonarcloud.io/dashboard?id=FicsaveMiddleware%3Aapp)
 [![SonarCloud Maintainability](https://sonarcloud.io/api/project_badges/measure?project=FicsaveMiddleware%3Aapp&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=FicsaveMiddleware%3Aapp)
 [![SonarCloud Security](https://sonarcloud.io/api/project_badges/measure?project=FicsaveMiddleware%3Aapp&metric=security_rating)](https://sonarcloud.io/dashboard?id=FicsaveMiddleware%3Aapp)
 [![SonarCloud Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=FicsaveMiddleware%3Aapp&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=FicsaveMiddleware%3Aapp)
-
-
-[![Twitter](https://img.shields.io/twitter/url/https/github.com/xRahul/FicsaveMiddleware.svg?style=social)](https://twitter.com/intent/tweet?text=Wow:&url=https%3A%2F%2Fgithub.com%2FxRahul%2FFicsaveMiddleware)
 
 
 This is a wrapper around the ficsave.xyz website. 
