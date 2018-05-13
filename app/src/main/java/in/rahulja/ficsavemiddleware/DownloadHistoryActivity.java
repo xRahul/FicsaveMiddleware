@@ -51,7 +51,7 @@ public class DownloadHistoryActivity extends AppCompatActivity {
                 + tempObject.get("name")
         );
       } catch (JSONException e) {
-        e.printStackTrace();
+        Log.e("FM/error", e.toString());
       }
     }
 
