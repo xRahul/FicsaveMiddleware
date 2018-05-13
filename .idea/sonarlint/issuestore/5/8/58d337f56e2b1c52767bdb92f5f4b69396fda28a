@@ -1,12 +1,0 @@
-
-qsquid:S1188"\Reduce this anonymous class number of lines from 92 to at most 20, or make it a named class.(æÊæê
-csquid:S1192"NDefine a constant instead of duplicating this literal "Invalid Email" 3 times.(”àÇà
-:squid:S1166"%Either log or rethrow this exception.(ï­£Ä
-„squid:S1151"jReduce this switch case number of lines from 19 to at most 5, for example by extracting code into methods.(¡ØúÉøÿÿÿÿ
-„squid:S1151"jReduce this switch case number of lines from 20 to at most 5, for example by extracting code into methods.(”ú˜±ÿÿÿÿÿ
-psquid:S1188"\Reduce this anonymous class number of lines from 44 to at most 20, or make it a named class.(ô§ê
-~squid:S1151"iReduce this switch case number of lines from 9 to at most 5, for example by extracting code into methods.(ÔŸÓÎ
-=squid:S1148"#Use a logger to log this exception.(€ÉÔ…ýÿÿÿÿ
-`squid:CommentedOutCodeLine"<This block of commented-out lines of code should be removed.(ŠÙù¥
-lsquid:S3776"RRefactor this method to reduce its Cognitive Complexity from 36 to the 15 allowed.(ÚØ»Ÿüÿÿÿÿ
-squid:S1151"jReduce this switch case number of lines from 15 to at most 5, for example by extracting code into methods.(Ì‰¨¦

@@ -9,3 +9,7 @@
 .externalNativeBuild
 
 app/google-services.json
+/.idea/sonarIssues.xml
+.idea/sonarlint/*
+.idea/caches/
+.idea/shelf/

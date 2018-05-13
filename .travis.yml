@@ -2,6 +2,12 @@ language: android
 sudo: false
 jdk: oraclejdk8
 
+addons:
+  sonarcloud:
+    organization: "xrahul-github" # the key of the org you chose at step #3
+    token:
+      secure: "BWTgn3Zl95cgzIiWB99Jyog3/FkjwxARVjvKSCOgtiYnyzJclRekJXli6E8E/cVjxYB9TJgVywsS7p0cEGTkuCdbW9QjLpVYCxUFdMZJ5aBZkf0MmgpqPLjKQ1dyczWhf+6y5R7e5XhGbJt1WMgFveB9LSEVqdBZvzOJG8NDi6PPk0nzxvXffzE0pVTCnLX98ET1M5z5QHy+M8vwO0rf7lRTmJxoiUGFzhz2gl4Z4P1Iigh9nJnVaWletmO0UjoTuCI0EqoOYOKGLFzTqgKL5WaExnWUScqps9OzmxCFm7HdL9F9nPS0pwzk6+FR6bd7SaP8DHnZslRx8khyxon0wqNqmhfri9B5yhpzHw5ZIuMXm9MNcHiSGegIejHmjGxiowPQslwNDIT2+Gh+bZEkxUBJhLBynRYQJD3Xl0aBdfYB2yJ2Q4MKiMbNSDxPW3yJoIETGB5AACPEk3RT+wFYCG0TueuiRMips0qkiJoqfKzCBAdeWwusQFkRZa5nFMiTiyHSMsQ7WKCs0IB7kSppsZJChQ4UvzcRG928XDKPqql5z/S3gtKzQY0fEchqMwDsFI0nTsAel+wII+PLxYgv2bpifxZOZv1FkRhFb8ZerDeqMtJQDfE1DLhrPlXnxqHfVkwBo2ciQ44rPVvlwNJor/tOaEwsbDniarrU5GVPl7I="
+
 android:
   components:
     - tools
@@ -19,8 +25,6 @@ android:
     - addon
     - sys-img-arm64-v8a-google_apis-25
     - sys-img-armeabi-v7a-google_apis-25
-    - sys-img-x86_64-google_apis-25
-    - sys-img-x86-google_apis-25
 
 before_install:
 - yes | sdkmanager "platforms;android-25"
@@ -38,5 +42,4 @@ script:
   - ./gradlew assemble
   - ./gradlew clean build
   - ./gradlew build check
-  
-  
+  - sonar-scanner
