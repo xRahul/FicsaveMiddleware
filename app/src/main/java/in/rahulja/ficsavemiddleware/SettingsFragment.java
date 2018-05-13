@@ -19,6 +19,7 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Map;
 
 public class SettingsFragment extends PreferenceFragment
@@ -141,7 +142,7 @@ public class SettingsFragment extends PreferenceFragment
             });
           }
         } catch (IOException e) {
-          e.printStackTrace();
+          Log.e("FM/SettingsFragment", Arrays.toString(e.getStackTrace()));
         }
       }
     });
@@ -192,8 +193,8 @@ public class SettingsFragment extends PreferenceFragment
         Intent intent =
             new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.developer_url)));
         startActivity(intent);
-        // DialogFragment dialog = new DeveloperDialogFragment();
-        // dialog.show((getActivity()).getFragmentManager(), "DeveloperDialogFragment");
+        /* DialogFragment dialog = new DeveloperDialogFragment();
+         dialog.show((getActivity()).getFragmentManager(), "DeveloperDialogFragment");*/
         return true;
       }
     });
@@ -246,80 +247,19 @@ public class SettingsFragment extends PreferenceFragment
       public void onSharedPreferenceChanged(SharedPreferences sPrefs, String key) {
         switch (key) {
           case DOWNLOAD_FILE_PREFERENCE:
-            Boolean downloadFileToDevice = sPrefs.getBoolean(DOWNLOAD_FILE_PREFERENCE, true);
-            if (downloadFileToDevice) {
-              sPrefs.edit().putBoolean(SEND_EMAIL_SITE_PREFERENCE, false).apply();
-            } else {
-              sPrefs.edit().putBoolean(OPEN_FILE_PREFERENCE, false).apply();
-              sPrefs.edit().putBoolean(SEND_EMAIL_DEVICE_PREFERENCE, false).apply();
-              sPrefs.edit().putBoolean(SEND_EMAIL_SITE_PREFERENCE, true).apply();
-            }
+            downloadFileSharedPreferenceChange(sPrefs);
             break;
           case OPEN_FILE_PREFERENCE:
-            Boolean openFileOnDevice = sPrefs.getBoolean(OPEN_FILE_PREFERENCE, true);
-            if (openFileOnDevice) {
-              sPrefs.edit().putBoolean(SEND_EMAIL_DEVICE_PREFERENCE, false).apply();
-            }
+            openFileSharedPreferenceChange(sPrefs);
             break;
           case SEND_EMAIL_DEVICE_PREFERENCE:
-            Boolean sendEmailFromDevice = sPrefs.getBoolean(SEND_EMAIL_DEVICE_PREFERENCE, true);
-            if (sendEmailFromDevice) {
-              String emailAddress = sPrefs.getString(EMAIL_ADDRESS_TO_SEND_TO, "");
-              if (!Patterns.EMAIL_ADDRESS.matcher(emailAddress).matches()) {
-                final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setTitle(INVALID_EMAIL);
-                builder.setMessage("Please enter a valid email address first!");
-                builder.setPositiveButton(android.R.string.ok, null);
-                builder.show();
-                sPrefs.edit().putBoolean(SEND_EMAIL_DEVICE_PREFERENCE, false).apply();
-              } else {
-                sPrefs.edit().putBoolean(OPEN_FILE_PREFERENCE, false).apply();
-              }
-            }
+            sendEmailDeviceSharedPreferenceChange(sPrefs);
             break;
           case SEND_EMAIL_SITE_PREFERENCE:
-            Boolean sendEmailFromSite = sPrefs.getBoolean(SEND_EMAIL_SITE_PREFERENCE, true);
-            if (sendEmailFromSite) {
-              String emailAddress = sPrefs.getString(EMAIL_ADDRESS_TO_SEND_TO, "");
-              if (!Patterns.EMAIL_ADDRESS.matcher(emailAddress).matches()) {
-                final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setTitle(INVALID_EMAIL);
-                builder.setMessage("Please enter a valid email address first!");
-                builder.setPositiveButton(android.R.string.ok, null);
-                builder.show();
-                sPrefs.edit().putBoolean(SEND_EMAIL_SITE_PREFERENCE, false).apply();
-              } else {
-                sPrefs.edit().putBoolean(DOWNLOAD_FILE_PREFERENCE, false).apply();
-                sPrefs.edit().putBoolean(OPEN_FILE_PREFERENCE, false).apply();
-                sPrefs.edit().putBoolean(SEND_EMAIL_DEVICE_PREFERENCE, false).apply();
-              }
-            } else {
-              sPrefs.edit().putBoolean(DOWNLOAD_FILE_PREFERENCE, true).apply();
-            }
+            sendEmailSiteSharedPreferenceChange(sPrefs);
             break;
           case EMAIL_ADDRESS_TO_SEND_TO:
-            String emailAddress = sPrefs.getString(EMAIL_ADDRESS_TO_SEND_TO, "");
-            if (!emailAddress.isEmpty() && !Patterns.EMAIL_ADDRESS.matcher(emailAddress)
-                .matches()) {
-
-              if (Patterns.EMAIL_ADDRESS.matcher(emailAddress.trim()).matches()) {
-                sPrefs.edit().putString(EMAIL_ADDRESS_TO_SEND_TO, emailAddress.trim()).apply();
-                break;
-              }
-
-              final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-              builder.setTitle(INVALID_EMAIL);
-              builder.setMessage("Please enter a valid email address");
-              builder.setPositiveButton(android.R.string.ok, null);
-              builder.show();
-              sPrefs.edit().putString(EMAIL_ADDRESS_TO_SEND_TO, "").apply();
-            } else if (emailAddress.isEmpty()) {
-              sPrefs.edit().putBoolean(SEND_EMAIL_DEVICE_PREFERENCE, false).apply();
-              sPrefs.edit().putBoolean(SEND_EMAIL_SITE_PREFERENCE, false).apply();
-              emailAddressPref.setSummary(R.string.email_address_summary);
-            } else {
-              emailAddressPref.setSummary(emailAddress);
-            }
+            emailAddressToSendToSharedPreferenceChange(sPrefs);
             break;
           default:
             break;
@@ -341,6 +281,87 @@ public class SettingsFragment extends PreferenceFragment
         mFTracker.logEvent("SharedPreferenceChanged", bundle);
       }
     };
+  }
+
+  private void emailAddressToSendToSharedPreferenceChange(SharedPreferences sPrefs) {
+    String emailAddress = sPrefs.getString(EMAIL_ADDRESS_TO_SEND_TO, "");
+    if (!emailAddress.isEmpty() && !Patterns.EMAIL_ADDRESS.matcher(emailAddress)
+        .matches()) {
+
+      if (Patterns.EMAIL_ADDRESS.matcher(emailAddress.trim()).matches()) {
+        sPrefs.edit().putString(EMAIL_ADDRESS_TO_SEND_TO, emailAddress.trim()).apply();
+        return;
+      }
+
+      final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+      builder.setTitle(INVALID_EMAIL);
+      builder.setMessage("Please enter a valid email address");
+      builder.setPositiveButton(android.R.string.ok, null);
+      builder.show();
+      sPrefs.edit().putString(EMAIL_ADDRESS_TO_SEND_TO, "").apply();
+    } else if (emailAddress.isEmpty()) {
+      sPrefs.edit().putBoolean(SEND_EMAIL_DEVICE_PREFERENCE, false).apply();
+      sPrefs.edit().putBoolean(SEND_EMAIL_SITE_PREFERENCE, false).apply();
+      emailAddressPref.setSummary(R.string.email_address_summary);
+    } else {
+      emailAddressPref.setSummary(emailAddress);
+    }
+  }
+
+  private void sendEmailSiteSharedPreferenceChange(SharedPreferences sPrefs) {
+    Boolean sendEmailFromSite = sPrefs.getBoolean(SEND_EMAIL_SITE_PREFERENCE, true);
+    if (sendEmailFromSite) {
+      String emailAddress = sPrefs.getString(EMAIL_ADDRESS_TO_SEND_TO, "");
+      if (!Patterns.EMAIL_ADDRESS.matcher(emailAddress).matches()) {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle(INVALID_EMAIL);
+        builder.setMessage("Please enter a valid email address first!");
+        builder.setPositiveButton(android.R.string.ok, null);
+        builder.show();
+        sPrefs.edit().putBoolean(SEND_EMAIL_SITE_PREFERENCE, false).apply();
+      } else {
+        sPrefs.edit().putBoolean(DOWNLOAD_FILE_PREFERENCE, false).apply();
+        sPrefs.edit().putBoolean(OPEN_FILE_PREFERENCE, false).apply();
+        sPrefs.edit().putBoolean(SEND_EMAIL_DEVICE_PREFERENCE, false).apply();
+      }
+    } else {
+      sPrefs.edit().putBoolean(DOWNLOAD_FILE_PREFERENCE, true).apply();
+    }
+  }
+
+  private void sendEmailDeviceSharedPreferenceChange(SharedPreferences sPrefs) {
+    Boolean sendEmailFromDevice = sPrefs.getBoolean(SEND_EMAIL_DEVICE_PREFERENCE, true);
+    if (sendEmailFromDevice) {
+      String emailAddress = sPrefs.getString(EMAIL_ADDRESS_TO_SEND_TO, "");
+      if (!Patterns.EMAIL_ADDRESS.matcher(emailAddress).matches()) {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle(INVALID_EMAIL);
+        builder.setMessage("Please enter a valid email address first!");
+        builder.setPositiveButton(android.R.string.ok, null);
+        builder.show();
+        sPrefs.edit().putBoolean(SEND_EMAIL_DEVICE_PREFERENCE, false).apply();
+      } else {
+        sPrefs.edit().putBoolean(OPEN_FILE_PREFERENCE, false).apply();
+      }
+    }
+  }
+
+  private void openFileSharedPreferenceChange(SharedPreferences sPrefs) {
+    Boolean openFileOnDevice = sPrefs.getBoolean(OPEN_FILE_PREFERENCE, true);
+    if (openFileOnDevice) {
+      sPrefs.edit().putBoolean(SEND_EMAIL_DEVICE_PREFERENCE, false).apply();
+    }
+  }
+
+  private void downloadFileSharedPreferenceChange(SharedPreferences sPrefs) {
+    Boolean downloadFileToDevice = sPrefs.getBoolean(DOWNLOAD_FILE_PREFERENCE, true);
+    if (downloadFileToDevice) {
+      sPrefs.edit().putBoolean(SEND_EMAIL_SITE_PREFERENCE, false).apply();
+    } else {
+      sPrefs.edit().putBoolean(OPEN_FILE_PREFERENCE, false).apply();
+      sPrefs.edit().putBoolean(SEND_EMAIL_DEVICE_PREFERENCE, false).apply();
+      sPrefs.edit().putBoolean(SEND_EMAIL_SITE_PREFERENCE, true).apply();
+    }
   }
 
   @Override

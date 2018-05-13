@@ -10,11 +10,19 @@ addons:
 
 android:
   components:
+# Uncomment the lines below if you want to
+# use the latest revision of Android SDK Tools
     - tools
     - platform-tools
     - tools
+
+#    The BuildTools version used by your project
     - build-tools-25.0.2
+
+#    The SDK version used to compile your project
     - android-25
+
+
     - extra
     - extra-google-google_play_services
     - extra-google-m2repository
@@ -23,8 +31,11 @@ android:
     - addon-google_apis-google-24
     - add-on
     - addon
-    - sys-img-arm64-v8a-google_apis-25
-    - sys-img-armeabi-v7a-google_apis-25
+
+#     Specify at least one system image,
+#     if you need to run emulator(s) during your tests
+#    - sys-img-arm64-v8a-google_apis-25
+#    - sys-img-armeabi-v7a-google_apis-25
 
 before_install:
 - yes | sdkmanager "platforms;android-25"
@@ -42,4 +53,16 @@ script:
   - ./gradlew assemble
   - ./gradlew clean build
   - ./gradlew build check
-  - sonar-scanner
+  - ./gradlew sonarqube
+
+cache:
+  directories:
+    - '$HOME/.m2/repository'
+    - '$HOME/.sonar/cache'
+    - '$HOME/.gradle'
+    - '.gradle'
+    - '$HOME/.android/build-cache'
+
+before_cache:
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/

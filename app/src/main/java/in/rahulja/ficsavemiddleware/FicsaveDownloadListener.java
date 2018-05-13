@@ -22,10 +22,11 @@ import com.google.android.gms.analytics.Tracker;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.util.Date;
 import org.json.JSONArray;
@@ -39,6 +40,7 @@ class FicsaveDownloadListener implements DownloadListener {
   private static final String DOWNLOAD_LISTENER_CATEGORY = "DownloadListenerCategory";
   private static final String FILE_LABEL = "File: ";
   private static final String DOWNLOAD_HISTORY_FILENAME = "fm_download_history.json";
+  private static final String FM_ERROR = "FM/Error";
   private final SharedPreferences prefs;
   private MainActivity mContext;
   private DownloadManager mDownloadManager;
@@ -60,8 +62,8 @@ class FicsaveDownloadListener implements DownloadListener {
     mFTracker = application.getDefaultFATracker();
   }
 
-  static String convertStreamToString(InputStream is) throws Exception {
-    BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+  static String convertStreamToString(InputStream is) throws IOException {
+    BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
     StringBuilder sb = new StringBuilder();
     String line;
     while ((line = reader.readLine()) != null) {
@@ -94,7 +96,9 @@ class FicsaveDownloadListener implements DownloadListener {
       public void onReceive(Context context, Intent intent) {
         Log.d("ficsaveM/Dcomplete", intent.toString());
         // Prevents the occasional unintentional call. I needed this.
-        if (fileDownloadId == -1 || fileDownloadId != (long) intent.getExtras()
+        if (fileDownloadId == -1
+            || intent.getExtras() == null
+            || fileDownloadId != (long) intent.getExtras()
             .get("extra_download_id")) {
           return;
         }
@@ -107,7 +111,7 @@ class FicsaveDownloadListener implements DownloadListener {
           jsonArray = new JSONArray(historyFileData);
           fis.close();
         } catch (Exception e) {
-          Log.e("FM/Error", e.toString());
+          Log.e(FM_ERROR, e.toString());
         }
 
         JSONObject newFileData = new JSONObject();
@@ -119,16 +123,16 @@ class FicsaveDownloadListener implements DownloadListener {
           Log.d("FM/NEW_FILE_DATA", newFileData.toString());
           jsonArray.put(newFileData);
         } catch (JSONException e) {
-          Log.e("FM/Error", e.toString());
+          Log.e(FM_ERROR, e.toString());
         }
 
-        FileOutputStream fos = null;
-        try {
-          fos = mContext.openFileOutput(DOWNLOAD_HISTORY_FILENAME, Context.MODE_PRIVATE);
-          fos.write(jsonArray.toString().getBytes());
-          fos.close();
+        try (OutputStreamWriter writer = new OutputStreamWriter(
+            mContext.openFileOutput(DOWNLOAD_HISTORY_FILENAME, Context.MODE_PRIVATE),
+            StandardCharsets.UTF_8)
+        ) {
+          writer.write(jsonArray.toString());
         } catch (IOException e) {
-          Log.e("FM/Error", e.toString());
+          Log.e(FM_ERROR, e.toString());
         }
 
         if (prefs.getBoolean(OPEN_FILE_PREFERENCE, true)) {

@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
   private static final int PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1;
   private ProgressBar pbHorizontal;
   private ProgressBar pbCircle;
-  private WebView mWebview;
+  private WebView mWebView;
   private SharedPreferences prefs;
   private Tracker mGTracker;
   private FirebaseAnalytics mFTracker;
@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
     // get progress bars
     pbHorizontal = (ProgressBar) findViewById(R.id.progressBarHorizontal);
     pbCircle = (ProgressBar) findViewById(R.id.progressBarCircle);
-    mWebview = (WebView) findViewById(R.id.main_webview);
+    mWebView = (WebView) findViewById(R.id.main_webview);
 
     FicsaveMiddlewareApplication application = (FicsaveMiddlewareApplication) getApplication();
     mGTracker = application.getDefaultGATracker();
@@ -180,19 +180,19 @@ public class MainActivity extends AppCompatActivity {
 
     String intentViewUrl = getIntentViewUrl();
 
-    if (mWebview != null) {
+    if (mWebView != null) {
       // set listeners and clients to webview
-      mWebview.setWebViewClient(new FicsaveWebViewClient(this));
-      mWebview.setWebChromeClient(new FicsaveWebChromeClient(this));
-      mWebview.setDownloadListener(new FicsaveDownloadListener(this));
+      mWebView.setWebViewClient(new FicsaveWebViewClient(this));
+      mWebView.setWebChromeClient(new FicsaveWebChromeClient(this));
+      mWebView.setDownloadListener(new FicsaveDownloadListener(this));
 
       // enable external javascript to run on page
-      mWebview.getSettings().setJavaScriptEnabled(true);
+      mWebView.getSettings().setJavaScriptEnabled(true);
 
       // load the ficsave homepage
       String ficsaveHomePage = "http://" + getString(R.string.ficsave_host);
       String urlToLoad = intentViewUrl.isEmpty() ? ficsaveHomePage : intentViewUrl;
-      if (mWebview.getUrl() != null && mWebview.getUrl().contains(urlToLoad)) {
+      if (mWebView.getUrl() != null && mWebView.getUrl().contains(urlToLoad)) {
         runJSonPage(urlToLoad);
 
         mGTracker.send(new HitBuilders.EventBuilder()
@@ -206,7 +206,7 @@ public class MainActivity extends AppCompatActivity {
         mFTracker.logEvent("RunningJS_SiteAlreadyLoaded", bundle);
       } else {
         Log.d("ficsaveM/load", urlToLoad);
-        mWebview.loadUrl(urlToLoad);
+        mWebView.loadUrl(urlToLoad);
 
         mGTracker.send(new HitBuilders.EventBuilder()
             .setCategory(MAIN_PAGE_CATEGORY)
@@ -225,7 +225,7 @@ public class MainActivity extends AppCompatActivity {
     String url = "";
     Intent intent = getIntent();
     String intentAction = intent.getAction();
-    if (Intent.ACTION_VIEW.equals(intentAction)) {
+    if (Intent.ACTION_VIEW.equals(intentAction) && intent.getData() != null) {
       url = intent.getData().toString();
       Log.d("ficsaveM/deepLink", url + " " + intent.toString());
 
@@ -327,7 +327,7 @@ public class MainActivity extends AppCompatActivity {
       new Handler().postDelayed(new Runnable() {
         @Override
         public void run() {
-          mWebview.evaluateJavascript(jsString, new ValueCallback<String>() {
+          mWebView.evaluateJavascript(jsString, new ValueCallback<String>() {
             @Override
             public void onReceiveValue(String value) {
               Log.d("ficsaveM/JSrun", "Success, Value: " + value);

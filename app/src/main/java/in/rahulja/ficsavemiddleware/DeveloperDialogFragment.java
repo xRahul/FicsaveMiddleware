@@ -19,6 +19,7 @@ public class DeveloperDialogFragment extends DialogFragment {
     return inflater.inflate(R.layout.fragment_developer_dialog, container, false);
   }
 
+  @SuppressWarnings("unused")
   public interface DeveloperDialogListener {
     void onDialogPositiveClick(DialogFragment dialog);
 
