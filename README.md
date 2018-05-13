@@ -8,7 +8,6 @@
 [![CodeClimate Maintainability](https://api.codeclimate.com/v1/badges/9cb40490a0f78716af81/maintainability)](https://codeclimate.com/github/xRahul/FicsaveMiddleware/maintainability)
 [![CodeFactor](https://www.codefactor.io/repository/github/xrahul/ficsavemiddleware/badge)](https://www.codefactor.io/repository/github/xrahul/ficsavemiddleware)
 [![codebeat badge](https://codebeat.co/badges/404e0219-40d8-4bbe-9952-3e38f66d9dc7)](https://codebeat.co/projects/github-com-xrahul-ficsavemiddleware-master)
-[![security](https://hakiri.io/github/xRahul/FicsaveMiddleware/master.svg)](https://hakiri.io/github/xRahul/FicsaveMiddleware/master)
 
 [![SonarCloud Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=FicsaveMiddleware%3Aapp&metric=alert_status)](https://sonarcloud.io/dashboard?id=FicsaveMiddleware%3Aapp)
 [![SonarCloud Bugs](https://sonarcloud.io/api/project_badges/measure?project=FicsaveMiddleware%3Aapp&metric=bugs)](https://sonarcloud.io/dashboard?id=FicsaveMiddleware%3Aapp)
