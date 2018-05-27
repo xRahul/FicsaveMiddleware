@@ -152,28 +152,24 @@ class FicsaveDownloadListener implements DownloadListener {
         IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
   }
 
-  private void trackDownloadComplete() {
+  private void sendGTrackerEvent(String action) {
     mGTracker.send(new HitBuilders.EventBuilder()
         .setCategory(DOWNLOAD_LISTENER_CATEGORY)
-        .setAction("DownloadComplete")
+        .setAction(action)
         .setLabel(FILE_LABEL + fileName)
         .setValue(1)
         .build());
     Bundle bundle = new Bundle();
     bundle.putString("File", fileName);
-    mFTracker.logEvent("DownloadComplete", bundle);
+    mFTracker.logEvent(action, bundle);
+  }
+
+  private void trackDownloadComplete() {
+    sendGTrackerEvent("DownloadComplete");
   }
 
   private void trackFileCannotOpen() {
-    mGTracker.send(new HitBuilders.EventBuilder()
-        .setCategory(DOWNLOAD_LISTENER_CATEGORY)
-        .setAction("CannotOpenFile")
-        .setLabel(FILE_LABEL + fileName)
-        .setValue(1)
-        .build());
-    Bundle bundle = new Bundle();
-    bundle.putString("File", fileName);
-    mFTracker.logEvent("CannotOpenFile", bundle);
+    sendGTrackerEvent("CannotOpenFile");
   }
 
   private void openFileOnDevice(Uri mostRecentDownload) {
@@ -248,14 +244,6 @@ class FicsaveDownloadListener implements DownloadListener {
         //To notify the Client that the file is being downloaded
         Toast.LENGTH_LONG).show();
 
-    mGTracker.send(new HitBuilders.EventBuilder()
-        .setCategory(DOWNLOAD_LISTENER_CATEGORY)
-        .setAction("Download Enqueued")
-        .setLabel(FILE_LABEL + fileName)
-        .setValue(1)
-        .build());
-    Bundle bundle = new Bundle();
-    bundle.putString("File", fileName);
-    mFTracker.logEvent("DownloadEnqueued", bundle);
+    sendGTrackerEvent("DownloadEnqueued");
   }
 }

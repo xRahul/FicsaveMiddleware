@@ -313,11 +313,7 @@ public class SettingsFragment extends PreferenceFragment
     if (sendEmailFromSite) {
       String emailAddress = sPrefs.getString(EMAIL_ADDRESS_TO_SEND_TO, "");
       if (!Patterns.EMAIL_ADDRESS.matcher(emailAddress).matches()) {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle(INVALID_EMAIL);
-        builder.setMessage("Please enter a valid email address first!");
-        builder.setPositiveButton(android.R.string.ok, null);
-        builder.show();
+        showInvalidEmailAlert();
         sPrefs.edit().putBoolean(SEND_EMAIL_SITE_PREFERENCE, false).apply();
       } else {
         sPrefs.edit().putBoolean(DOWNLOAD_FILE_PREFERENCE, false).apply();
@@ -329,16 +325,20 @@ public class SettingsFragment extends PreferenceFragment
     }
   }
 
+  private void showInvalidEmailAlert() {
+    final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+    builder.setTitle(INVALID_EMAIL);
+    builder.setMessage("Please enter a valid email address first!");
+    builder.setPositiveButton(android.R.string.ok, null);
+    builder.show();
+  }
+
   private void sendEmailDeviceSharedPreferenceChange(SharedPreferences sPrefs) {
     Boolean sendEmailFromDevice = sPrefs.getBoolean(SEND_EMAIL_DEVICE_PREFERENCE, true);
     if (sendEmailFromDevice) {
       String emailAddress = sPrefs.getString(EMAIL_ADDRESS_TO_SEND_TO, "");
       if (!Patterns.EMAIL_ADDRESS.matcher(emailAddress).matches()) {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle(INVALID_EMAIL);
-        builder.setMessage("Please enter a valid email address first!");
-        builder.setPositiveButton(android.R.string.ok, null);
-        builder.show();
+        showInvalidEmailAlert();
         sPrefs.edit().putBoolean(SEND_EMAIL_DEVICE_PREFERENCE, false).apply();
       } else {
         sPrefs.edit().putBoolean(OPEN_FILE_PREFERENCE, false).apply();
