@@ -62,7 +62,7 @@ class FicsaveDownloadListener implements DownloadListener {
     firebaseTracker = application.getDefaultFirebaseTracker();
   }
 
-  static String convertStreamToString(InputStream is) throws IOException {
+  public static String convertStreamToString(InputStream is) throws IOException {
     BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
     StringBuilder sb = new StringBuilder();
     String line;
