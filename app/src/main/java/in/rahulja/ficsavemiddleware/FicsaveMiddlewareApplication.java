@@ -6,29 +6,34 @@ import com.google.android.gms.analytics.Tracker;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 public class FicsaveMiddlewareApplication extends Application {
-  private Tracker mGTracker;
-  private FirebaseAnalytics mFTracker;
+  private Tracker gaTracker;
+  private FirebaseAnalytics firebaseTracker;
 
   /**
-   * Gets the default {@link Tracker} for this {@link Application}.
+   * Gets the default Google Analytics {@link Tracker} for this {@link Application}.
    *
-   * @return tracker
+   * @return gaTracker
    */
-  public synchronized Tracker getDefaultGATracker() {
-    if (mGTracker == null) {
+  public synchronized Tracker getDefaultGoogleAnalyticsTracker() {
+    if (gaTracker == null) {
       GoogleAnalytics analytics = GoogleAnalytics.getInstance(this);
-      mGTracker = analytics.newTracker(R.xml.global_tracker);
-      mGTracker.enableAdvertisingIdCollection(true);
-      mGTracker.enableExceptionReporting(true);
+      gaTracker = analytics.newTracker(R.xml.global_tracker);
+      gaTracker.enableAdvertisingIdCollection(true);
+      gaTracker.enableExceptionReporting(true);
     }
-    return mGTracker;
+    return gaTracker;
   }
 
-  public synchronized FirebaseAnalytics getDefaultFATracker() {
-    if (mFTracker == null) {
-      mFTracker = FirebaseAnalytics.getInstance(this);
-      mFTracker.setAnalyticsCollectionEnabled(false);
+  /**
+   * Gets the default {@link FirebaseAnalytics} tracker for this {@link Application}.
+   *
+   * @return firebaseTracker
+   */
+  public synchronized FirebaseAnalytics getDefaultFirebaseTracker() {
+    if (firebaseTracker == null) {
+      firebaseTracker = FirebaseAnalytics.getInstance(this);
+      firebaseTracker.setAnalyticsCollectionEnabled(false);
     }
-    return mFTracker;
+    return firebaseTracker;
   }
 }

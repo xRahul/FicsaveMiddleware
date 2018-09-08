@@ -37,10 +37,10 @@ public class MainActivity extends AppCompatActivity {
   private static final int PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1;
   private ProgressBar pbHorizontal;
   private ProgressBar pbCircle;
-  private WebView mWebView;
+  private WebView webView;
   private SharedPreferences prefs;
-  private Tracker mGTracker;
-  private FirebaseAnalytics mFTracker;
+  private Tracker gaTracker;
+  private FirebaseAnalytics firebaseTracker;
   private String ficUrl = "";
 
   @Override
@@ -57,16 +57,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // get progress bars
-    pbHorizontal = (ProgressBar) findViewById(R.id.progressBarHorizontal);
-    pbCircle = (ProgressBar) findViewById(R.id.progressBarCircle);
-    mWebView = (WebView) findViewById(R.id.main_webview);
+    pbHorizontal = findViewById(R.id.progressBarHorizontal);
+    pbCircle = findViewById(R.id.progressBarCircle);
+    webView = findViewById(R.id.main_webview);
 
     FicsaveMiddlewareApplication application = (FicsaveMiddlewareApplication) getApplication();
-    mGTracker = application.getDefaultGATracker();
-    mFTracker = application.getDefaultFATracker();
+    gaTracker = application.getDefaultGoogleAnalyticsTracker();
+    firebaseTracker = application.getDefaultFirebaseTracker();
 
     // Attaching the layout to the toolbar object
-    Toolbar toolbar = (Toolbar) findViewById(R.id.tool_bar);
+    Toolbar toolbar = findViewById(R.id.tool_bar);
     // Setting toolbar as the ActionBar with setSupportActionBar() call
     setSupportActionBar(toolbar);
 
@@ -76,8 +76,8 @@ public class MainActivity extends AppCompatActivity {
   @Override
   protected void onResume() {
     super.onResume();
-    mGTracker.setScreenName("Homepage");
-    mGTracker.send(new HitBuilders.ScreenViewBuilder().build());
+    gaTracker.setScreenName("Homepage");
+    gaTracker.send(new HitBuilders.ScreenViewBuilder().build());
   }
 
   @Override
@@ -137,6 +137,9 @@ public class MainActivity extends AppCompatActivity {
     return super.onOptionsItemSelected(item);
   }
 
+  /**
+   * Show Title Progress Spinner.
+   */
   public void showTitleProgressSpinner() {
     // Show progress item
     if (pbCircle != null) {
@@ -144,6 +147,9 @@ public class MainActivity extends AppCompatActivity {
     }
   }
 
+  /**
+   * Hide Title Progress Spinner.
+   */
   public void hideTitleProgressSpinner() {
     // Hide progress item
     if (pbCircle != null) {
@@ -151,6 +157,11 @@ public class MainActivity extends AppCompatActivity {
     }
   }
 
+  /**
+   * Set Progress bar position.
+   *
+   * @param position progress
+   */
   public void progressHorizontalLoader(int position) {
     // progress the bar
     if (pbHorizontal != null) {
@@ -158,6 +169,9 @@ public class MainActivity extends AppCompatActivity {
     }
   }
 
+  /**
+   * Hide Progress Bar.
+   */
   public void hideHorizontalLoader() {
     // Hide progress item
     if (pbHorizontal != null) {
@@ -165,6 +179,9 @@ public class MainActivity extends AppCompatActivity {
     }
   }
 
+  /**
+   * Show Progress Bar.
+   */
   public void showHorizontalLoader() {
     // Show progress item
     if (pbHorizontal != null) {
@@ -180,22 +197,22 @@ public class MainActivity extends AppCompatActivity {
 
     String intentViewUrl = getIntentViewUrl();
 
-    if (mWebView != null) {
-      // set listeners and clients to webview
-      mWebView.setWebViewClient(new FicsaveWebViewClient(this));
-      mWebView.setWebChromeClient(new FicsaveWebChromeClient(this));
-      mWebView.setDownloadListener(new FicsaveDownloadListener(this));
+    if (webView != null) {
+      // set listeners and clients to webView
+      webView.setWebViewClient(new FicsaveWebViewClient(this));
+      webView.setWebChromeClient(new FicsaveWebChromeClient(this));
+      webView.setDownloadListener(new FicsaveDownloadListener(this));
 
       // enable external javascript to run on page
-      mWebView.getSettings().setJavaScriptEnabled(true);
+      webView.getSettings().setJavaScriptEnabled(true);
 
       // load the ficsave homepage
       String ficsaveHomePage = "http://" + getString(R.string.ficsave_host);
       String urlToLoad = intentViewUrl.isEmpty() ? ficsaveHomePage : intentViewUrl;
-      if (mWebView.getUrl() != null && mWebView.getUrl().contains(urlToLoad)) {
+      if (webView.getUrl() != null && webView.getUrl().contains(urlToLoad)) {
         runJSonPage(urlToLoad);
 
-        mGTracker.send(new HitBuilders.EventBuilder()
+        gaTracker.send(new HitBuilders.EventBuilder()
             .setCategory(MAIN_PAGE_CATEGORY)
             .setAction("Running JS - Website already Loaded")
             .setLabel(URL_LABEL + urlToLoad)
@@ -203,12 +220,12 @@ public class MainActivity extends AppCompatActivity {
             .build());
         Bundle bundle = new Bundle();
         bundle.putString("Url", urlToLoad);
-        mFTracker.logEvent("RunningJS_SiteAlreadyLoaded", bundle);
+        firebaseTracker.logEvent("RunningJS_SiteAlreadyLoaded", bundle);
       } else {
         Log.d("ficsaveM/load", urlToLoad);
-        mWebView.loadUrl(urlToLoad);
+        webView.loadUrl(urlToLoad);
 
-        mGTracker.send(new HitBuilders.EventBuilder()
+        gaTracker.send(new HitBuilders.EventBuilder()
             .setCategory(MAIN_PAGE_CATEGORY)
             .setAction("Loading Url")
             .setLabel(URL_LABEL + urlToLoad)
@@ -216,7 +233,7 @@ public class MainActivity extends AppCompatActivity {
             .build());
         Bundle bundle = new Bundle();
         bundle.putString("Url", urlToLoad);
-        mFTracker.logEvent("LoadingUrl", bundle);
+        firebaseTracker.logEvent("LoadingUrl", bundle);
       }
     }
   }
@@ -229,7 +246,7 @@ public class MainActivity extends AppCompatActivity {
       url = intent.getData().toString();
       Log.d("ficsaveM/deepLink", url + " " + intent.toString());
 
-      mGTracker.send(new HitBuilders.EventBuilder()
+      gaTracker.send(new HitBuilders.EventBuilder()
           .setCategory(MAIN_PAGE_CATEGORY)
           .setAction("Deep Link Accessed")
           .setLabel(URL_LABEL + url)
@@ -237,7 +254,7 @@ public class MainActivity extends AppCompatActivity {
           .build());
       Bundle bundle = new Bundle();
       bundle.putString("Url", url);
-      mFTracker.logEvent("DeepLinkAccessed", bundle);
+      firebaseTracker.logEvent("DeepLinkAccessed", bundle);
     }
     return url;
   }
@@ -257,7 +274,7 @@ public class MainActivity extends AppCompatActivity {
           ficUrl = url;
           Log.d("ficsaveM/setIntFicUrl", "URL extracted: " + url);
 
-          mGTracker.send(new HitBuilders.EventBuilder()
+          gaTracker.send(new HitBuilders.EventBuilder()
               .setCategory(MAIN_PAGE_CATEGORY)
               .setAction("Fic Url Set")
               .setLabel(URL_LABEL + ficUrl)
@@ -265,7 +282,7 @@ public class MainActivity extends AppCompatActivity {
               .build());
           Bundle bundle = new Bundle();
           bundle.putString("Url", ficUrl);
-          mFTracker.logEvent("FicUrlSet", bundle);
+          firebaseTracker.logEvent("FicUrlSet", bundle);
         }
       }
     }
@@ -293,7 +310,7 @@ public class MainActivity extends AppCompatActivity {
         ).show();
       }
     }
-    mGTracker.send(new HitBuilders.EventBuilder()
+    gaTracker.send(new HitBuilders.EventBuilder()
         .setCategory(MAIN_PAGE_CATEGORY)
         .setAction("Permission Requested")
         .setLabel("WRITE_EXTERNAL_STORAGE: " + trackerResult)
@@ -302,9 +319,14 @@ public class MainActivity extends AppCompatActivity {
     Bundle bundle = new Bundle();
     bundle.putString("Permission", "WRITE_EXTERNAL_STORAGE");
     bundle.putString("Access", trackerResult);
-    mFTracker.logEvent("PermissionRequested", bundle);
+    firebaseTracker.logEvent("PermissionRequested", bundle);
   }
 
+  /**
+   * Execute JavaScript on the Web Page.
+   *
+   * @param url URL to execute JS on.
+   */
   public void runJSonPage(String url) {
     Log.d("ficsaveM/runJSCalled", url + " " + ficUrl);
     // Check if not loading the download URL and some fanfic url is there to download
@@ -327,7 +349,7 @@ public class MainActivity extends AppCompatActivity {
       new Handler().postDelayed(new Runnable() {
         @Override
         public void run() {
-          mWebView.evaluateJavascript(jsString, new ValueCallback<String>() {
+          webView.evaluateJavascript(jsString, new ValueCallback<String>() {
             @Override
             public void onReceiveValue(String value) {
               Log.d("ficsaveM/JSrun", "Success, Value: " + value);
@@ -343,7 +365,7 @@ public class MainActivity extends AppCompatActivity {
   }
 
   private void trackJsRunSuccess(String value) {
-    mGTracker.send(new HitBuilders.EventBuilder()
+    gaTracker.send(new HitBuilders.EventBuilder()
         .setCategory(MAIN_PAGE_CATEGORY)
         .setAction("JS run success")
         .setLabel(value)
@@ -351,7 +373,7 @@ public class MainActivity extends AppCompatActivity {
         .build());
     Bundle bundle = new Bundle();
     bundle.putString("Value", value);
-    mFTracker.logEvent("JSrunSuccess", bundle);
+    firebaseTracker.logEvent("JSrunSuccess", bundle);
   }
 
   private String getJsScript() {
@@ -359,35 +381,33 @@ public class MainActivity extends AppCompatActivity {
     String jsScript = "";
 
     if (!ficUrl.isEmpty()) {
-      jsScript +=
-          "document.getElementsByClassName(\"grey-text text-lighten-1\")[0].className = \"grey-text text-lighten-1 active\";"
-              +
-              "document.getElementById('url').value = \""
-              + ficUrl
-              + "\";";
+      jsScript += "document.getElementsByClassName(\"grey-text text-lighten-1\")[0].className = "
+          + "\"grey-text text-lighten-1 active\";"
+          + "document.getElementById('url').value = \""
+          + ficUrl
+          + "\";";
     }
 
     if (prefs.getBoolean(SEND_EMAIL_SITE_PREFERENCE, false)) {
-      jsScript +=
-          "document.getElementsByClassName(\"grey-text text-lighten-1\")[2].className = \"grey-text text-lighten-1 active\";"
-              +
-              "document.getElementById('email').value = \""
-              + prefs.getString(EMAIL_ADDRESS_TO_SEND_TO, "")
-              + "\";";
+      jsScript += "document.getElementsByClassName(\"grey-text text-lighten-1\")[2].className = "
+          + "\"grey-text text-lighten-1 active\";"
+          + "document.getElementById('email').value = \""
+          + prefs.getString(EMAIL_ADDRESS_TO_SEND_TO, "")
+          + "\";";
     }
 
     switch (prefs.getString(FILE_TYPES_PREFERENCE, "mobi")) {
       case "mobi":
-        jsScript += "document.getElementsByClassName('select-dropdown')[0].value = \"MOBI\";" +
-            "document.getElementsByName('format')[0].value = \"mobi\";";
+        jsScript += "document.getElementsByClassName('select-dropdown')[0].value = \"MOBI\";"
+            + "document.getElementsByName('format')[0].value = \"mobi\";";
         break;
       case "epub":
-        jsScript += "document.getElementsByClassName('select-dropdown')[0].value = \"ePub\";" +
-            "document.getElementsByName('format')[0].value = \"epub\";";
+        jsScript += "document.getElementsByClassName('select-dropdown')[0].value = \"ePub\";"
+            + "document.getElementsByName('format')[0].value = \"epub\";";
         break;
       case "txt":
-        jsScript += "document.getElementsByClassName('select-dropdown')[0].value = \"Text\";" +
-            "document.getElementsByName('format')[0].value = \"txt\";";
+        jsScript += "document.getElementsByClassName('select-dropdown')[0].value = \"Text\";"
+            + "document.getElementsByName('format')[0].value = \"txt\";";
         break;
       default:
         break;

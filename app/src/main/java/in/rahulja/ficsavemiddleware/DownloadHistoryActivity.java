@@ -21,7 +21,7 @@ public class DownloadHistoryActivity extends AppCompatActivity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_download_history);
 
-    lv = (ListView) findViewById(R.id.history_list_view);
+    lv = findViewById(R.id.history_list_view);
   }
 
   @Override
@@ -40,12 +40,12 @@ public class DownloadHistoryActivity extends AppCompatActivity {
       Log.e("FM/error", e.toString());
     }
 
-    ArrayList<String> listdata = new ArrayList<>();
+    ArrayList<String> listData = new ArrayList<>();
     for (int i = jsonArray.length() - 1; i >= 0; i--) {
       try {
         JSONObject tempObject = jsonArray.getJSONObject(i);
 
-        listdata.add(
+        listData.add(
             String.valueOf(tempObject.get("datetime"))
                 + "\n"
                 + tempObject.get("name")
@@ -55,13 +55,13 @@ public class DownloadHistoryActivity extends AppCompatActivity {
       }
     }
 
-    Log.d("FM/historyList", listdata.toString());
+    Log.d("FM/historyList", listData.toString());
 
     ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(
         this,
         R.layout.history_item,
         R.id.history_list_item_textview,
-        listdata);
+        listData);
 
     lv.setAdapter(arrayAdapter);
   }

@@ -12,7 +12,7 @@ import android.widget.TextView;
 
 public class TermsActivity extends AppCompatActivity {
 
-  private SharedPreferences prefs;
+  private SharedPreferences sharedPreferences;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -29,17 +29,17 @@ public class TermsActivity extends AppCompatActivity {
     }
 
     // set the html content on a TextView
-    TextView textView = (TextView) findViewById(R.id.textView_privacy_policy);
+    TextView textView = findViewById(R.id.textView_privacy_policy);
     textView.setText(htmlAsSpanned);
 
-    prefs = PreferenceManager.getDefaultSharedPreferences(this);
+    sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
-    Button ok = (Button) findViewById(R.id.privacy_policy_button);
+    Button ok = findViewById(R.id.privacy_policy_button);
 
     ok.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
-        prefs.edit().putBoolean("terms_shown", true).apply();
+        sharedPreferences.edit().putBoolean("terms_shown", true).apply();
         finish();
       }
     });

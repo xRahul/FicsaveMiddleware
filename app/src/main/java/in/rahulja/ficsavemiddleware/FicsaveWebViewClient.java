@@ -14,16 +14,16 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 class FicsaveWebViewClient extends WebViewClient {
 
   private static final String URL_LABEL = "Url: ";
-  private MainActivity mActivity;
-  private Tracker mGTracker;
-  private FirebaseAnalytics mFTracker;
+  private MainActivity mainActivity;
+  private Tracker gaTracker;
+  private FirebaseAnalytics firebaseTracker;
 
   FicsaveWebViewClient(MainActivity activity) {
-    mActivity = activity;
+    mainActivity = activity;
     FicsaveMiddlewareApplication application =
-        (FicsaveMiddlewareApplication) mActivity.getApplication();
-    mGTracker = application.getDefaultGATracker();
-    mFTracker = application.getDefaultFATracker();
+        (FicsaveMiddlewareApplication) mainActivity.getApplication();
+    gaTracker = application.getDefaultGoogleAnalyticsTracker();
+    firebaseTracker = application.getDefaultFirebaseTracker();
   }
 
   @Override
@@ -31,11 +31,11 @@ class FicsaveWebViewClient extends WebViewClient {
   public boolean shouldOverrideUrlLoading(WebView view, String url) {
 
     // if URL's host is ficsave.xyz, open in webview, else let android open it somewhere else
-    if (Uri.parse(url).getHost().equals(mActivity.getString(R.string.ficsave_host))) {
+    if (Uri.parse(url).getHost().equals(mainActivity.getString(R.string.ficsave_host))) {
       return false;
     }
 
-    mGTracker.send(new HitBuilders.EventBuilder()
+    gaTracker.send(new HitBuilders.EventBuilder()
         .setCategory("WebViewClientCategory")
         .setAction("Other Url than ficsave Opened")
         .setLabel(URL_LABEL + url)
@@ -43,31 +43,31 @@ class FicsaveWebViewClient extends WebViewClient {
         .build());
     Bundle bundle = new Bundle();
     bundle.putString("Url", url);
-    mFTracker.logEvent("OtherUrlthanficsaveOpened", bundle);
+    firebaseTracker.logEvent("OtherUrlthanficsaveOpened", bundle);
 
     Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-    mActivity.startActivity(intent);
+    mainActivity.startActivity(intent);
 
     return true;
   }
 
   @Override
   public void onPageStarted(WebView view, String url, Bitmap favicon) {
-    mActivity.showTitleProgressSpinner();
+    mainActivity.showTitleProgressSpinner();
   }
 
   @Override
   public void onPageFinished(final WebView view, String url) {
-    mActivity.hideTitleProgressSpinner();
+    mainActivity.hideTitleProgressSpinner();
 
-    mActivity.runJSonPage(url);
+    mainActivity.runJSonPage(url);
   }
 
   @Override
   @SuppressWarnings("deprecation")
   public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
     Log.d("ficsaveM/ErrorLoading", URL_LABEL + failingUrl + " Reason" + description);
-    mGTracker.send(new HitBuilders.EventBuilder()
+    gaTracker.send(new HitBuilders.EventBuilder()
         .setCategory("WebViewClientCategory")
         .setAction("Page Load Error")
         .setLabel(URL_LABEL + failingUrl + " Reason" + description)
@@ -76,6 +76,6 @@ class FicsaveWebViewClient extends WebViewClient {
     Bundle bundle = new Bundle();
     bundle.putString("Url", failingUrl);
     bundle.putString("Reason", description);
-    mFTracker.logEvent("PageLoadError", bundle);
+    firebaseTracker.logEvent("PageLoadError", bundle);
   }
 }
