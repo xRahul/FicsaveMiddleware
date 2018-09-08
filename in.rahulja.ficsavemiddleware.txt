@@ -13,7 +13,7 @@ This is a wrapper around the ficsave.xyz website.  Opening the website, entering
 the url, choosing options can become tedious after you've read your 100th
 fanfiction. This helps you automate the entire process.
 
-This app supports Android 4.4+
+This app supports Android 6.0+
 
 Current Features
 
@@ -32,12 +32,12 @@ being used for debugging purposes only.
 Repo Type:git
 Repo:https://github.com/xRahul/FicsaveMiddleware.git
 
-Build:1.5,15
-    commit=1.5
+Build:1.6,16
+    commit=1.6
     subdir=app
     gradle=yes
 
 Auto Update Mode:Version %v
 Update Check Mode:Tags
-Current Version:1.5
-Current Version Code:15
+Current Version:1.6
+Current Version Code:16
