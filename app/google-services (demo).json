@@ -8,25 +8,12 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:36534691455:android:a2121212122a930b",
+        "mobilesdk_app_id": "1:37545671495:android:e33d6ce0593c9d1b",
         "android_client_info": {
           "package_name": "in.rahulja.ficsavemiddleware"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "37545671495-k3al1r23422wersgrd3sdtckbasdf34d.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "in.rahulja.ficsavemiddleware",
-            "certificate_hash": "873sdf4fd4298sdfs34754ba7e26a86fe4adc38"
-          }
-        },
-        {
-          "client_id": "37545671495-873sdf4fd4298sdfs34754ba7e.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
           "current_key": "SDsdfJsfSdsadfhgfHFsdfGsdfDKdfSdfFHdG"
