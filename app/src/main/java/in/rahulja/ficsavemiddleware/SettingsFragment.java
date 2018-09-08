@@ -38,8 +38,8 @@ public class SettingsFragment extends PreferenceFragment
   private OnSharedPreferenceChangeListener listener;
   private Preference emailAddressPref;
   private SharedPreferences prefs;
-  private Tracker mGTracker;
-  private FirebaseAnalytics mFTracker;
+  private Tracker gaTracker;
+  private FirebaseAnalytics firebaseTracker;
   private String versionSummary;
   private Preference versionPref;
   private String latestVersionUrl;
@@ -52,8 +52,8 @@ public class SettingsFragment extends PreferenceFragment
 
     FicsaveMiddlewareApplication application =
         (FicsaveMiddlewareApplication) getActivity().getApplication();
-    mGTracker = application.getDefaultGATracker();
-    mFTracker = application.getDefaultFATracker();
+    gaTracker = application.getDefaultGoogleAnalyticsTracker();
+    firebaseTracker = application.getDefaultFirebaseTracker();
 
     prefs = PreferenceManager.getDefaultSharedPreferences(this.getActivity());
 
@@ -106,10 +106,10 @@ public class SettingsFragment extends PreferenceFragment
       public void run() {
         try {
           URL url = new URL(getString(R.string.latest_release_url));
-          HttpURLConnection ucon = (HttpURLConnection) url.openConnection();
-          ucon.setInstanceFollowRedirects(false);
-          URL secondURL = new URL(ucon.getHeaderField("Location"));
-          String secondUrl = String.valueOf(secondURL);
+          HttpURLConnection httpUrlConnection = (HttpURLConnection) url.openConnection();
+          httpUrlConnection.setInstanceFollowRedirects(false);
+          String secondUrl =
+              String.valueOf(new URL(httpUrlConnection.getHeaderField("Location")));
           String latestVersion = Uri.parse(secondUrl).getLastPathSegment();
           Log.d("ficsaveM/updateUrl", secondUrl);
           trackAppUrlFetch(secondUrl);
@@ -117,11 +117,11 @@ public class SettingsFragment extends PreferenceFragment
             String checkUrl =
                 getString(R.string.current_release_url_prefix) + BuildConfig.VERSION_NAME;
             if (secondUrl.equals(checkUrl)) {
-              versionSummary = BuildConfig.VERSION_NAME + " " +
-                  getString(R.string.version_summary_latest);
+              versionSummary = BuildConfig.VERSION_NAME + " "
+                  + getString(R.string.version_summary_latest);
             } else {
-              versionSummary = BuildConfig.VERSION_NAME + " " +
-                  "(" + getString(R.string.version_summary_changed_latest) + latestVersion + ")";
+              versionSummary = BuildConfig.VERSION_NAME + " "
+                  + "(" + getString(R.string.version_summary_changed_latest) + latestVersion + ")";
             }
 
             getActivity().runOnUiThread(new Runnable() {
@@ -129,7 +129,7 @@ public class SettingsFragment extends PreferenceFragment
               public void run() {
                 versionPref.setSummary(versionSummary);
                 Log.d("ficsaveM/versionChecked", versionSummary);
-                mGTracker.send(new HitBuilders.EventBuilder()
+                gaTracker.send(new HitBuilders.EventBuilder()
                     .setCategory(SETTINGS_CATEGORY)
                     .setAction("versionSummaryChanged")
                     .setLabel(versionSummary)
@@ -137,7 +137,7 @@ public class SettingsFragment extends PreferenceFragment
                     .build());
                 Bundle bundle = new Bundle();
                 bundle.putString("Summary", versionSummary);
-                mFTracker.logEvent("versionSummaryChanged", bundle);
+                firebaseTracker.logEvent("versionSummaryChanged", bundle);
               }
             });
           }
@@ -150,7 +150,7 @@ public class SettingsFragment extends PreferenceFragment
   }
 
   private void trackAppUrlFetch(String secondUrl) {
-    mGTracker.send(new HitBuilders.EventBuilder()
+    gaTracker.send(new HitBuilders.EventBuilder()
         .setCategory(SETTINGS_CATEGORY)
         .setAction("latestAppUrlFetched")
         .setLabel(secondUrl)
@@ -158,7 +158,7 @@ public class SettingsFragment extends PreferenceFragment
         .build());
     Bundle bundle = new Bundle();
     bundle.putString("Url", secondUrl);
-    mFTracker.logEvent("latestAppUrlFetched", bundle);
+    firebaseTracker.logEvent("latestAppUrlFetched", bundle);
   }
 
   private void initializePreferenceListener() {
@@ -181,7 +181,7 @@ public class SettingsFragment extends PreferenceFragment
     developerPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
       public boolean onPreferenceClick(Preference developerPref) {
         Log.d("ficsaveM/developerClick", developerPref.toString());
-        mGTracker.send(new HitBuilders.EventBuilder()
+        gaTracker.send(new HitBuilders.EventBuilder()
             .setCategory(SETTINGS_CATEGORY)
             .setAction("developerPreferenceClicked")
             .setLabel(developerPref.toString())
@@ -189,12 +189,12 @@ public class SettingsFragment extends PreferenceFragment
             .build());
         Bundle bundle = new Bundle();
         bundle.putString("pref", developerPref.toString());
-        mFTracker.logEvent("developerPreferenceClicked", bundle);
+        firebaseTracker.logEvent("developerPreferenceClicked", bundle);
         Intent intent =
             new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.developer_url)));
         startActivity(intent);
         /* DialogFragment dialog = new DeveloperDialogFragment();
-         dialog.show((getActivity()).getFragmentManager(), "DeveloperDialogFragment");*/
+        dialog.show((getActivity()).getFragmentManager(), "DeveloperDialogFragment"); */
         return true;
       }
     });
@@ -207,7 +207,7 @@ public class SettingsFragment extends PreferenceFragment
         startActivity(intent);
 
         Log.d("ficsaveM/versionClick", versionPref.toString());
-        mGTracker.send(new HitBuilders.EventBuilder()
+        gaTracker.send(new HitBuilders.EventBuilder()
             .setCategory(SETTINGS_CATEGORY)
             .setAction("versionPreferenceClicked")
             .setLabel(versionPref.toString())
@@ -215,7 +215,7 @@ public class SettingsFragment extends PreferenceFragment
             .build());
         Bundle bundle = new Bundle();
         bundle.putString("pref", versionPref.toString());
-        mFTracker.logEvent("versionPreferenceClicked", bundle);
+        firebaseTracker.logEvent("versionPreferenceClicked", bundle);
         return true;
       }
     });
@@ -228,7 +228,7 @@ public class SettingsFragment extends PreferenceFragment
         startActivity(intent);
 
         Log.d("ficsaveM/privacyClick", privacyPolicyPref.toString());
-        mGTracker.send(new HitBuilders.EventBuilder()
+        gaTracker.send(new HitBuilders.EventBuilder()
             .setCategory(SETTINGS_CATEGORY)
             .setAction("privacyPreferenceClicked")
             .setLabel(privacyPolicyPref.toString())
@@ -236,7 +236,7 @@ public class SettingsFragment extends PreferenceFragment
             .build());
         Bundle bundle = new Bundle();
         bundle.putString("pref", privacyPolicyPref.toString());
-        mFTracker.logEvent("privacyPreferenceClicked", bundle);
+        firebaseTracker.logEvent("privacyPreferenceClicked", bundle);
         return true;
       }
     });
@@ -244,32 +244,32 @@ public class SettingsFragment extends PreferenceFragment
 
   private void initializeSharedPreferenceListener() {
     listener = new OnSharedPreferenceChangeListener() {
-      public void onSharedPreferenceChanged(SharedPreferences sPrefs, String key) {
+      public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         switch (key) {
           case DOWNLOAD_FILE_PREFERENCE:
-            downloadFileSharedPreferenceChange(sPrefs);
+            downloadFileSharedPreferenceChange(sharedPreferences);
             break;
           case OPEN_FILE_PREFERENCE:
-            openFileSharedPreferenceChange(sPrefs);
+            openFileSharedPreferenceChange(sharedPreferences);
             break;
           case SEND_EMAIL_DEVICE_PREFERENCE:
-            sendEmailDeviceSharedPreferenceChange(sPrefs);
+            sendEmailDeviceSharedPreferenceChange(sharedPreferences);
             break;
           case SEND_EMAIL_SITE_PREFERENCE:
-            sendEmailSiteSharedPreferenceChange(sPrefs);
+            sendEmailSiteSharedPreferenceChange(sharedPreferences);
             break;
           case EMAIL_ADDRESS_TO_SEND_TO:
-            emailAddressToSendToSharedPreferenceChange(sPrefs);
+            emailAddressToSendToSharedPreferenceChange(sharedPreferences);
             break;
           default:
             break;
         }
         updatePreferenceView();
 
-        Map<String, ?> logPrefs = sPrefs.getAll();
+        Map<String, ?> logPrefs = sharedPreferences.getAll();
         logPrefs.remove(EMAIL_ADDRESS_TO_SEND_TO);
 
-        mGTracker.send(new HitBuilders.EventBuilder()
+        gaTracker.send(new HitBuilders.EventBuilder()
             .setCategory(SETTINGS_CATEGORY)
             .setAction("SharedPreferenceChanged: " + key)
             .setLabel(logPrefs.toString())
@@ -278,18 +278,18 @@ public class SettingsFragment extends PreferenceFragment
         Bundle bundle = new Bundle();
         bundle.putString("Key", key);
         bundle.putString("Preferences", logPrefs.toString());
-        mFTracker.logEvent("SharedPreferenceChanged", bundle);
+        firebaseTracker.logEvent("SharedPreferenceChanged", bundle);
       }
     };
   }
 
-  private void emailAddressToSendToSharedPreferenceChange(SharedPreferences sPrefs) {
-    String emailAddress = sPrefs.getString(EMAIL_ADDRESS_TO_SEND_TO, "");
+  private void emailAddressToSendToSharedPreferenceChange(SharedPreferences sharedPreferences) {
+    String emailAddress = sharedPreferences.getString(EMAIL_ADDRESS_TO_SEND_TO, "");
     if (!emailAddress.isEmpty() && !Patterns.EMAIL_ADDRESS.matcher(emailAddress)
         .matches()) {
 
       if (Patterns.EMAIL_ADDRESS.matcher(emailAddress.trim()).matches()) {
-        sPrefs.edit().putString(EMAIL_ADDRESS_TO_SEND_TO, emailAddress.trim()).apply();
+        sharedPreferences.edit().putString(EMAIL_ADDRESS_TO_SEND_TO, emailAddress.trim()).apply();
         return;
       }
 
@@ -298,30 +298,30 @@ public class SettingsFragment extends PreferenceFragment
       builder.setMessage("Please enter a valid email address");
       builder.setPositiveButton(android.R.string.ok, null);
       builder.show();
-      sPrefs.edit().putString(EMAIL_ADDRESS_TO_SEND_TO, "").apply();
+      sharedPreferences.edit().putString(EMAIL_ADDRESS_TO_SEND_TO, "").apply();
     } else if (emailAddress.isEmpty()) {
-      sPrefs.edit().putBoolean(SEND_EMAIL_DEVICE_PREFERENCE, false).apply();
-      sPrefs.edit().putBoolean(SEND_EMAIL_SITE_PREFERENCE, false).apply();
+      sharedPreferences.edit().putBoolean(SEND_EMAIL_DEVICE_PREFERENCE, false).apply();
+      sharedPreferences.edit().putBoolean(SEND_EMAIL_SITE_PREFERENCE, false).apply();
       emailAddressPref.setSummary(R.string.email_address_summary);
     } else {
       emailAddressPref.setSummary(emailAddress);
     }
   }
 
-  private void sendEmailSiteSharedPreferenceChange(SharedPreferences sPrefs) {
-    Boolean sendEmailFromSite = sPrefs.getBoolean(SEND_EMAIL_SITE_PREFERENCE, true);
+  private void sendEmailSiteSharedPreferenceChange(SharedPreferences sharedPreferences) {
+    Boolean sendEmailFromSite = sharedPreferences.getBoolean(SEND_EMAIL_SITE_PREFERENCE, true);
     if (sendEmailFromSite) {
-      String emailAddress = sPrefs.getString(EMAIL_ADDRESS_TO_SEND_TO, "");
+      String emailAddress = sharedPreferences.getString(EMAIL_ADDRESS_TO_SEND_TO, "");
       if (!Patterns.EMAIL_ADDRESS.matcher(emailAddress).matches()) {
         showInvalidEmailAlert();
-        sPrefs.edit().putBoolean(SEND_EMAIL_SITE_PREFERENCE, false).apply();
+        sharedPreferences.edit().putBoolean(SEND_EMAIL_SITE_PREFERENCE, false).apply();
       } else {
-        sPrefs.edit().putBoolean(DOWNLOAD_FILE_PREFERENCE, false).apply();
-        sPrefs.edit().putBoolean(OPEN_FILE_PREFERENCE, false).apply();
-        sPrefs.edit().putBoolean(SEND_EMAIL_DEVICE_PREFERENCE, false).apply();
+        sharedPreferences.edit().putBoolean(DOWNLOAD_FILE_PREFERENCE, false).apply();
+        sharedPreferences.edit().putBoolean(OPEN_FILE_PREFERENCE, false).apply();
+        sharedPreferences.edit().putBoolean(SEND_EMAIL_DEVICE_PREFERENCE, false).apply();
       }
     } else {
-      sPrefs.edit().putBoolean(DOWNLOAD_FILE_PREFERENCE, true).apply();
+      sharedPreferences.edit().putBoolean(DOWNLOAD_FILE_PREFERENCE, true).apply();
     }
   }
 
@@ -333,34 +333,34 @@ public class SettingsFragment extends PreferenceFragment
     builder.show();
   }
 
-  private void sendEmailDeviceSharedPreferenceChange(SharedPreferences sPrefs) {
-    Boolean sendEmailFromDevice = sPrefs.getBoolean(SEND_EMAIL_DEVICE_PREFERENCE, true);
+  private void sendEmailDeviceSharedPreferenceChange(SharedPreferences sharedPreferences) {
+    Boolean sendEmailFromDevice = sharedPreferences.getBoolean(SEND_EMAIL_DEVICE_PREFERENCE, true);
     if (sendEmailFromDevice) {
-      String emailAddress = sPrefs.getString(EMAIL_ADDRESS_TO_SEND_TO, "");
+      String emailAddress = sharedPreferences.getString(EMAIL_ADDRESS_TO_SEND_TO, "");
       if (!Patterns.EMAIL_ADDRESS.matcher(emailAddress).matches()) {
         showInvalidEmailAlert();
-        sPrefs.edit().putBoolean(SEND_EMAIL_DEVICE_PREFERENCE, false).apply();
+        sharedPreferences.edit().putBoolean(SEND_EMAIL_DEVICE_PREFERENCE, false).apply();
       } else {
-        sPrefs.edit().putBoolean(OPEN_FILE_PREFERENCE, false).apply();
+        sharedPreferences.edit().putBoolean(OPEN_FILE_PREFERENCE, false).apply();
       }
     }
   }
 
-  private void openFileSharedPreferenceChange(SharedPreferences sPrefs) {
-    Boolean openFileOnDevice = sPrefs.getBoolean(OPEN_FILE_PREFERENCE, true);
+  private void openFileSharedPreferenceChange(SharedPreferences sharedPreferences) {
+    Boolean openFileOnDevice = sharedPreferences.getBoolean(OPEN_FILE_PREFERENCE, true);
     if (openFileOnDevice) {
-      sPrefs.edit().putBoolean(SEND_EMAIL_DEVICE_PREFERENCE, false).apply();
+      sharedPreferences.edit().putBoolean(SEND_EMAIL_DEVICE_PREFERENCE, false).apply();
     }
   }
 
-  private void downloadFileSharedPreferenceChange(SharedPreferences sPrefs) {
-    Boolean downloadFileToDevice = sPrefs.getBoolean(DOWNLOAD_FILE_PREFERENCE, true);
+  private void downloadFileSharedPreferenceChange(SharedPreferences sharedPreferences) {
+    Boolean downloadFileToDevice = sharedPreferences.getBoolean(DOWNLOAD_FILE_PREFERENCE, true);
     if (downloadFileToDevice) {
-      sPrefs.edit().putBoolean(SEND_EMAIL_SITE_PREFERENCE, false).apply();
+      sharedPreferences.edit().putBoolean(SEND_EMAIL_SITE_PREFERENCE, false).apply();
     } else {
-      sPrefs.edit().putBoolean(OPEN_FILE_PREFERENCE, false).apply();
-      sPrefs.edit().putBoolean(SEND_EMAIL_DEVICE_PREFERENCE, false).apply();
-      sPrefs.edit().putBoolean(SEND_EMAIL_SITE_PREFERENCE, true).apply();
+      sharedPreferences.edit().putBoolean(OPEN_FILE_PREFERENCE, false).apply();
+      sharedPreferences.edit().putBoolean(SEND_EMAIL_DEVICE_PREFERENCE, false).apply();
+      sharedPreferences.edit().putBoolean(SEND_EMAIL_SITE_PREFERENCE, true).apply();
     }
   }
 

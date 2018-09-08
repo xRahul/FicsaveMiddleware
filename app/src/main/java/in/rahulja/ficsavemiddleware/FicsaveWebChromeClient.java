@@ -6,17 +6,17 @@ import android.webkit.WebView;
 import android.widget.Toast;
 
 class FicsaveWebChromeClient extends WebChromeClient {
-  private MainActivity mActivity;
+  private MainActivity mainActivity;
 
   FicsaveWebChromeClient(MainActivity activity) {
-    mActivity = activity;
+    mainActivity = activity;
   }
 
   @Override
   public boolean onJsAlert(WebView view, String url, String message,
       final android.webkit.JsResult result) {
     Log.d("ficsaveM/JSalert", message);
-    Toast.makeText(mActivity, message, Toast.LENGTH_LONG).show();
+    Toast.makeText(mainActivity, message, Toast.LENGTH_LONG).show();
     result.confirm();
     return true;
   }
@@ -26,15 +26,15 @@ class FicsaveWebChromeClient extends WebChromeClient {
     super.onProgressChanged(view, newProgress);
 
     //Make the bar disappear after URL is loaded, and changes string to Loading...
-    mActivity.setTitle("Loading...");
+    mainActivity.setTitle("Loading...");
     Log.d("ficsaveM/URLprogress", String.valueOf(newProgress));
-    mActivity.showHorizontalLoader();
-    mActivity.progressHorizontalLoader(newProgress); //Make the bar disappear after URL is loaded
+    mainActivity.showHorizontalLoader();
+    mainActivity.progressHorizontalLoader(newProgress); //Make the bar disappear after URL is loaded
 
     // Return the app name after finish loading
     if (newProgress == 100) {
-      mActivity.setTitle(R.string.app_name);
-      mActivity.hideHorizontalLoader();
+      mainActivity.setTitle(R.string.app_name);
+      mainActivity.hideHorizontalLoader();
     }
   }
 }

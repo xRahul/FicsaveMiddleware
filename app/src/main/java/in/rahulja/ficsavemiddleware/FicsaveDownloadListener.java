@@ -42,27 +42,27 @@ class FicsaveDownloadListener implements DownloadListener {
   private static final String DOWNLOAD_HISTORY_FILENAME = "fm_download_history.json";
   private static final String FM_ERROR = "FM/Error";
   private final SharedPreferences prefs;
-  private MainActivity mContext;
-  private DownloadManager mDownloadManager;
+  private MainActivity mainActivityContext;
+  private DownloadManager downloadManager;
   private String downloadUrl;
   private String downloadUserAgent;
   private String downloadContentDisposition;
   private String downloadMimeType;
   private long fileDownloadId;
   private String fileName;
-  private Tracker mGTracker;
-  private FirebaseAnalytics mFTracker;
+  private Tracker gaTracker;
+  private FirebaseAnalytics firebaseTracker;
 
   FicsaveDownloadListener(MainActivity context) {
-    mContext = context;
-    prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+    mainActivityContext = context;
+    prefs = PreferenceManager.getDefaultSharedPreferences(mainActivityContext);
     FicsaveMiddlewareApplication application =
-        (FicsaveMiddlewareApplication) mContext.getApplication();
-    mGTracker = application.getDefaultGATracker();
-    mFTracker = application.getDefaultFATracker();
+        (FicsaveMiddlewareApplication) mainActivityContext.getApplication();
+    gaTracker = application.getDefaultGoogleAnalyticsTracker();
+    firebaseTracker = application.getDefaultFirebaseTracker();
   }
 
-  static String convertStreamToString(InputStream is) throws IOException {
+  public static String convertStreamToString(InputStream is) throws IOException {
     BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
     StringBuilder sb = new StringBuilder();
     String line;
@@ -82,7 +82,7 @@ class FicsaveDownloadListener implements DownloadListener {
     downloadContentDisposition = contentDisposition;
     downloadMimeType = mimetype;
 
-    mDownloadManager = (DownloadManager) mContext
+    downloadManager = (DownloadManager) mainActivityContext
         .getSystemService(Context.DOWNLOAD_SERVICE);
 
     downloadFile();
@@ -103,10 +103,10 @@ class FicsaveDownloadListener implements DownloadListener {
           return;
         }
         // Grabs the Uri for the file that was downloaded.
-        Uri mostRecentDownload = mDownloadManager.getUriForDownloadedFile(fileDownloadId);
+        Uri mostRecentDownload = downloadManager.getUriForDownloadedFile(fileDownloadId);
         JSONArray jsonArray = new JSONArray();
         try {
-          FileInputStream fis = mContext.openFileInput(DOWNLOAD_HISTORY_FILENAME);
+          FileInputStream fis = mainActivityContext.openFileInput(DOWNLOAD_HISTORY_FILENAME);
           String historyFileData = convertStreamToString(fis);
           jsonArray = new JSONArray(historyFileData);
           fis.close();
@@ -127,7 +127,7 @@ class FicsaveDownloadListener implements DownloadListener {
         }
 
         try (OutputStreamWriter writer = new OutputStreamWriter(
-            mContext.openFileOutput(DOWNLOAD_HISTORY_FILENAME, Context.MODE_PRIVATE),
+            mainActivityContext.openFileOutput(DOWNLOAD_HISTORY_FILENAME, Context.MODE_PRIVATE),
             StandardCharsets.UTF_8)
         ) {
           writer.write(jsonArray.toString());
@@ -141,19 +141,20 @@ class FicsaveDownloadListener implements DownloadListener {
         if (prefs.getBoolean(SEND_EMAIL_DEVICE_PREFERENCE, true)) {
           emailFileFromDevice(mostRecentDownload);
         }
-        // Sets up the prevention of an unintentional call. I found it necessary. Maybe not for others.
+        // Sets up the prevention of an unintentional call.
+        // I found it necessary. Maybe not for others.
         fileDownloadId = -1;
-        mContext.unregisterReceiver(this);
+        mainActivityContext.unregisterReceiver(this);
         trackDownloadComplete();
       }
     };
     // Registers function to listen to the completion of the download.
-    mContext.registerReceiver(onComplete, new
+    mainActivityContext.registerReceiver(onComplete, new
         IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
   }
 
   private void sendGTrackerEvent(String action) {
-    mGTracker.send(new HitBuilders.EventBuilder()
+    gaTracker.send(new HitBuilders.EventBuilder()
         .setCategory(DOWNLOAD_LISTENER_CATEGORY)
         .setAction(action)
         .setLabel(FILE_LABEL + fileName)
@@ -161,7 +162,7 @@ class FicsaveDownloadListener implements DownloadListener {
         .build());
     Bundle bundle = new Bundle();
     bundle.putString("File", fileName);
-    mFTracker.logEvent(action, bundle);
+    firebaseTracker.logEvent(action, bundle);
   }
 
   private void trackDownloadComplete() {
@@ -176,15 +177,15 @@ class FicsaveDownloadListener implements DownloadListener {
     Intent fileIntent = new Intent(Intent.ACTION_VIEW);
     // DownloadManager stores the Mime Type. Makes it really easy for us.
     String mimeType =
-        mDownloadManager.getMimeTypeForDownloadedFile(fileDownloadId);
+        downloadManager.getMimeTypeForDownloadedFile(fileDownloadId);
     fileIntent.setDataAndType(mostRecentDownload, mimeType);
     fileIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
     try {
-      mContext.startActivity(fileIntent);
+      mainActivityContext.startActivity(fileIntent);
     } catch (ActivityNotFoundException e) {
       Log.d("ficsaveM/cantOpenFile", fileName);
       trackFileCannotOpen();
-      Toast.makeText(mContext, "You don't have a supported ebook reader",
+      Toast.makeText(mainActivityContext, "You don't have a supported ebook reader",
           Toast.LENGTH_LONG).show();
     }
   }
@@ -200,16 +201,15 @@ class FicsaveDownloadListener implements DownloadListener {
     // the mail subject
     emailIntent.putExtra(Intent.EXTRA_SUBJECT, "FicsaveMiddleware - " + fileName);
     // the mail content
-    String content =
-        "Hi" +
-            "\n\n" +
-            "Hope you enjoy the story!" +
-            "\n\n" +
-            "Ficsave.xyz is a creation of https://github.com/waylaidwanderer" +
-            "\n" +
-            "and FicsaveMiddleware is created by https://github.com/xRahul.";
+    String content = "Hi"
+        + "\n\n"
+        + "Hope you enjoy the story!"
+        + "\n\n"
+        + "Ficsave.xyz is a creation of https://github.com/waylaidwanderer"
+        + "\n"
+        + "and FicsaveMiddleware is created by https://github.com/xRahul.";
     emailIntent.putExtra(Intent.EXTRA_TEXT, content);
-    mContext.startActivity(emailIntent);
+    mainActivityContext.startActivity(emailIntent);
   }
 
   private void downloadFile() {
@@ -238,9 +238,9 @@ class FicsaveDownloadListener implements DownloadListener {
     request.addRequestHeader("cookie", cookies);
     request.addRequestHeader("User-Agent", downloadUserAgent);
 
-    fileDownloadId = mDownloadManager.enqueue(request);
+    fileDownloadId = downloadManager.enqueue(request);
     Log.d("ficsaveM/DownloadStartd", "fileID: " + fileDownloadId + ", fileName: " + fileName);
-    Toast.makeText(mContext, R.string.downloading_file_toast_msg,
+    Toast.makeText(mainActivityContext, R.string.downloading_file_toast_msg,
         //To notify the Client that the file is being downloaded
         Toast.LENGTH_LONG).show();
 

@@ -8,7 +8,7 @@ import com.google.android.gms.analytics.Tracker;
 
 public class FicSettingsActivity extends PreferenceActivity {
 
-  private Tracker mGTracker;
+  private Tracker gaTracker;
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
@@ -20,13 +20,13 @@ public class FicSettingsActivity extends PreferenceActivity {
         .replace(android.R.id.content, new SettingsFragment())
         .commit();
     FicsaveMiddlewareApplication application = (FicsaveMiddlewareApplication) getApplication();
-    mGTracker = application.getDefaultGATracker();
+    gaTracker = application.getDefaultGoogleAnalyticsTracker();
   }
 
   @Override
   public void onResume() {
     super.onResume();
-    mGTracker.setScreenName("Settings");
-    mGTracker.send(new HitBuilders.ScreenViewBuilder().build());
+    gaTracker.setScreenName("Settings");
+    gaTracker.send(new HitBuilders.ScreenViewBuilder().build());
   }
 }
