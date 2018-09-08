@@ -1,20 +1,35 @@
 {
   "project_info": {
-    "project_number": "11111111111",
-    "project_id": "ficsave-middleware"
+    "project_number": "37545671495",
+    "firebase_url": "https://ficsave-middleware.firebaseio.com",
+    "project_id": "ficsave-middleware",
+    "storage_bucket": "ficsave-middleware.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:11111111111:android:qaaqaqaqaqaqaq",
+        "mobilesdk_app_id": "1:36534691455:android:a2121212122a930b",
         "android_client_info": {
           "package_name": "in.rahulja.ficsavemiddleware"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "37545671495-k3al1r23422wersgrd3sdtckbasdf34d.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "in.rahulja.ficsavemiddleware",
+            "certificate_hash": "873sdf4fd4298sdfs34754ba7e26a86fe4adc38"
+          }
+        },
+        {
+          "client_id": "37545671495-873sdf4fd4298sdfs34754ba7e.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "SDsdfJsfSdHFsdfGsdfDKdfSdfFHdG"
+          "current_key": "SDsdfJsfSdsadfhgfHFsdfGsdfDKdfSdfFHdG"
         }
       ],
       "services": {
@@ -29,7 +44,7 @@
           "other_platform_oauth_client": []
         },
         "ads_service": {
-          "status": 1
+          "status": 2
         }
       }
     }
