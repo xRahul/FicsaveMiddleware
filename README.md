@@ -4,6 +4,7 @@
 [![Releases](https://img.shields.io/github/release/xRahul/FicsaveMiddleware.svg)](https://github.com/xRahul/FicsaveMiddleware/releases/latest)
 [![Build Status](https://travis-ci.org/xRahul/FicsaveMiddleware.svg?branch=master)](https://travis-ci.org/xRahul/FicsaveMiddleware)
 [![Dependabot](https://badgen.net/badge/Dependabot/enabled/green?icon=dependabot)](https://dependabot.com/)
+[![libraries.io](https://img.shields.io/librariesio/github/xRahul/FicsaveMiddleware.svg)](https://libraries.io/github/xRahul/FicsaveMiddleware)
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/656060bf06df488ab62d12c5814ec024)](https://www.codacy.com/app/xRahul/FicsaveMiddleware)
 [![CodeClimate Maintainability](https://api.codeclimate.com/v1/badges/9cb40490a0f78716af81/maintainability)](https://codeclimate.com/github/xRahul/FicsaveMiddleware/maintainability)
