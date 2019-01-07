@@ -7,7 +7,6 @@ buildscript {
   }
   dependencies {
     classpath 'com.android.tools.build:gradle:3.2.1'
-    classpath 'com.google.gms:google-services:4.2.0'
     classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.7.0.1622"
 
     // NOTE: Do not place your application dependencies here; they belong
@@ -41,6 +40,6 @@ ext {
   minSdkVersion = 23
   targetSdkVersion = 28
   applicationId = "in.rahulja.ficsavemiddleware"
-  versionCode = 17
-  versionName = "1.7"
+  versionCode = 270
+  versionName = "2.7.0"
 }

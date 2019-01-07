@@ -13,9 +13,6 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.util.Patterns;
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
-import com.google.firebase.analytics.FirebaseAnalytics;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -33,13 +30,10 @@ public class SettingsFragment extends PreferenceFragment
   public static final String PREF_VERSION = "version";
   public static final String PREF_DEVELOPER = "developer";
   public static final String PREF_PRIVACY_POLICY = "privacy_policy";
-  public static final String SETTINGS_CATEGORY = "SettingsCategory";
   public static final String INVALID_EMAIL = "Invalid Email";
   private OnSharedPreferenceChangeListener listener;
   private Preference emailAddressPref;
   private SharedPreferences prefs;
-  private Tracker gaTracker;
-  private FirebaseAnalytics firebaseTracker;
   private String versionSummary;
   private Preference versionPref;
   private String latestVersionUrl;
@@ -49,11 +43,6 @@ public class SettingsFragment extends PreferenceFragment
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-
-    FicsaveMiddlewareApplication application =
-        (FicsaveMiddlewareApplication) getActivity().getApplication();
-    gaTracker = application.getDefaultGoogleAnalyticsTracker();
-    firebaseTracker = application.getDefaultFirebaseTracker();
 
     prefs = PreferenceManager.getDefaultSharedPreferences(this.getActivity());
 
@@ -112,7 +101,6 @@ public class SettingsFragment extends PreferenceFragment
               String.valueOf(new URL(httpUrlConnection.getHeaderField("Location")));
           String latestVersion = Uri.parse(secondUrl).getLastPathSegment();
           Log.d("ficsaveM/updateUrl", secondUrl);
-          trackAppUrlFetch(secondUrl);
           if (getActivity() != null) {
             String checkUrl =
                 getString(R.string.current_release_url_prefix) + BuildConfig.VERSION_NAME;
@@ -129,15 +117,6 @@ public class SettingsFragment extends PreferenceFragment
               public void run() {
                 versionPref.setSummary(versionSummary);
                 Log.d("ficsaveM/versionChecked", versionSummary);
-                gaTracker.send(new HitBuilders.EventBuilder()
-                    .setCategory(SETTINGS_CATEGORY)
-                    .setAction("versionSummaryChanged")
-                    .setLabel(versionSummary)
-                    .setValue(1)
-                    .build());
-                Bundle bundle = new Bundle();
-                bundle.putString("Summary", versionSummary);
-                firebaseTracker.logEvent("versionSummaryChanged", bundle);
               }
             });
           }
@@ -147,18 +126,6 @@ public class SettingsFragment extends PreferenceFragment
       }
     });
     thread.start();
-  }
-
-  private void trackAppUrlFetch(String secondUrl) {
-    gaTracker.send(new HitBuilders.EventBuilder()
-        .setCategory(SETTINGS_CATEGORY)
-        .setAction("latestAppUrlFetched")
-        .setLabel(secondUrl)
-        .setValue(1)
-        .build());
-    Bundle bundle = new Bundle();
-    bundle.putString("Url", secondUrl);
-    firebaseTracker.logEvent("latestAppUrlFetched", bundle);
   }
 
   private void initializePreferenceListener() {
@@ -181,15 +148,6 @@ public class SettingsFragment extends PreferenceFragment
     developerPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
       public boolean onPreferenceClick(Preference developerPref) {
         Log.d("ficsaveM/developerClick", developerPref.toString());
-        gaTracker.send(new HitBuilders.EventBuilder()
-            .setCategory(SETTINGS_CATEGORY)
-            .setAction("developerPreferenceClicked")
-            .setLabel(developerPref.toString())
-            .setValue(1)
-            .build());
-        Bundle bundle = new Bundle();
-        bundle.putString("pref", developerPref.toString());
-        firebaseTracker.logEvent("developerPreferenceClicked", bundle);
         Intent intent =
             new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.developer_url)));
         startActivity(intent);
@@ -207,15 +165,6 @@ public class SettingsFragment extends PreferenceFragment
         startActivity(intent);
 
         Log.d("ficsaveM/versionClick", versionPref.toString());
-        gaTracker.send(new HitBuilders.EventBuilder()
-            .setCategory(SETTINGS_CATEGORY)
-            .setAction("versionPreferenceClicked")
-            .setLabel(versionPref.toString())
-            .setValue(1)
-            .build());
-        Bundle bundle = new Bundle();
-        bundle.putString("pref", versionPref.toString());
-        firebaseTracker.logEvent("versionPreferenceClicked", bundle);
         return true;
       }
     });
@@ -228,15 +177,6 @@ public class SettingsFragment extends PreferenceFragment
         startActivity(intent);
 
         Log.d("ficsaveM/privacyClick", privacyPolicyPref.toString());
-        gaTracker.send(new HitBuilders.EventBuilder()
-            .setCategory(SETTINGS_CATEGORY)
-            .setAction("privacyPreferenceClicked")
-            .setLabel(privacyPolicyPref.toString())
-            .setValue(1)
-            .build());
-        Bundle bundle = new Bundle();
-        bundle.putString("pref", privacyPolicyPref.toString());
-        firebaseTracker.logEvent("privacyPreferenceClicked", bundle);
         return true;
       }
     });
@@ -268,17 +208,6 @@ public class SettingsFragment extends PreferenceFragment
 
         Map<String, ?> logPrefs = sharedPreferences.getAll();
         logPrefs.remove(EMAIL_ADDRESS_TO_SEND_TO);
-
-        gaTracker.send(new HitBuilders.EventBuilder()
-            .setCategory(SETTINGS_CATEGORY)
-            .setAction("SharedPreferenceChanged: " + key)
-            .setLabel(logPrefs.toString())
-            .setValue(1)
-            .build());
-        Bundle bundle = new Bundle();
-        bundle.putString("Key", key);
-        bundle.putString("Preferences", logPrefs.toString());
-        firebaseTracker.logEvent("SharedPreferenceChanged", bundle);
       }
     };
   }

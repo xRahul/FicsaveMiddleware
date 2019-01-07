@@ -32,12 +32,12 @@ being used for debugging purposes only.
 Repo Type:git
 Repo:https://github.com/xRahul/FicsaveMiddleware.git
 
-Build:1.7,17
-    commit=1.7
+Build:2.7.0,270
+    commit=2.7.0
     subdir=app
     gradle=yes
 
 Auto Update Mode:Version %v
 Update Check Mode:Tags
-Current Version:1.7
-Current Version Code:17
+Current Version:2.7.0
+Current Version Code:270
