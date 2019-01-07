@@ -44,23 +44,7 @@
 
     <string name="privacy_policy_html">
         <![CDATA[
-
-            <h1>Privacy Policy</h1>
-            <p>Like millions of other website and apps, I use Google Analytics on FicsaveMiddleware</p>
-            <p>Google Analytics is a piece of software that grabs data about the users of this app (you). It is something like an advanced server log.</p>
-            <p><strong>What does Google Analytics record?</strong></p>
-            <ul>
-                <li>What screen you are on.</li>
-                <li>How long you stay for.</li>
-                <li>What kind of mobile you are using.</li>
-                <li>What preferences do you generally keep for the app.</li>
-                <li>And quite a bit more.</li>
-            </ul>
-            <p><strong>What do I do with your data?</strong></p>
-            <p>The tracking information allows me to better understand the kind of people who use this app and how they use it. This allows me to make better decisions about design and future features.</p>
-            <p>Occasionally, I will compile aggregate statistics about the number of visitors this app receives and phones being used. No personally identifying data is included in this type of reporting.</p>
-            <p>All of my activity falls within the bounds of the <a href="http://www.google.com/analytics/tos.html">Google Analytics Terms of Service</a>.</p>
-            <p>By using the app, you are accepting the policy.</p>
+            <p>I do not own ficsave. And I am not tracking anything.</p>
         ]]>
 
     </string>
