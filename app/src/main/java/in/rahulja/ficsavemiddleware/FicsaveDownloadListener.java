@@ -9,7 +9,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -17,9 +16,6 @@ import android.webkit.CookieManager;
 import android.webkit.DownloadListener;
 import android.webkit.URLUtil;
 import android.widget.Toast;
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
-import com.google.firebase.analytics.FirebaseAnalytics;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -37,8 +33,6 @@ class FicsaveDownloadListener implements DownloadListener {
   private static final String OPEN_FILE_PREFERENCE = "open_file_preference";
   private static final String SEND_EMAIL_DEVICE_PREFERENCE = "send_email_device_preference";
   private static final String EMAIL_ADDRESS_TO_SEND_TO = "email_address_to_send_to";
-  private static final String DOWNLOAD_LISTENER_CATEGORY = "DownloadListenerCategory";
-  private static final String FILE_LABEL = "File: ";
   private static final String DOWNLOAD_HISTORY_FILENAME = "fm_download_history.json";
   private static final String FM_ERROR = "FM/Error";
   private final SharedPreferences prefs;
@@ -50,18 +44,13 @@ class FicsaveDownloadListener implements DownloadListener {
   private String downloadMimeType;
   private long fileDownloadId;
   private String fileName;
-  private Tracker gaTracker;
-  private FirebaseAnalytics firebaseTracker;
 
   FicsaveDownloadListener(MainActivity context) {
     mainActivityContext = context;
     prefs = PreferenceManager.getDefaultSharedPreferences(mainActivityContext);
-    FicsaveMiddlewareApplication application =
-        (FicsaveMiddlewareApplication) mainActivityContext.getApplication();
-    gaTracker = application.getDefaultGoogleAnalyticsTracker();
-    firebaseTracker = application.getDefaultFirebaseTracker();
   }
 
+  @SuppressWarnings("WeakerAccess")
   public static String convertStreamToString(InputStream is) throws IOException {
     BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
     StringBuilder sb = new StringBuilder();
@@ -145,32 +134,11 @@ class FicsaveDownloadListener implements DownloadListener {
         // I found it necessary. Maybe not for others.
         fileDownloadId = -1;
         mainActivityContext.unregisterReceiver(this);
-        trackDownloadComplete();
       }
     };
     // Registers function to listen to the completion of the download.
     mainActivityContext.registerReceiver(onComplete, new
         IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
-  }
-
-  private void sendGTrackerEvent(String action) {
-    gaTracker.send(new HitBuilders.EventBuilder()
-        .setCategory(DOWNLOAD_LISTENER_CATEGORY)
-        .setAction(action)
-        .setLabel(FILE_LABEL + fileName)
-        .setValue(1)
-        .build());
-    Bundle bundle = new Bundle();
-    bundle.putString("File", fileName);
-    firebaseTracker.logEvent(action, bundle);
-  }
-
-  private void trackDownloadComplete() {
-    sendGTrackerEvent("DownloadComplete");
-  }
-
-  private void trackFileCannotOpen() {
-    sendGTrackerEvent("CannotOpenFile");
   }
 
   private void openFileOnDevice(Uri mostRecentDownload) {
@@ -184,7 +152,6 @@ class FicsaveDownloadListener implements DownloadListener {
       mainActivityContext.startActivity(fileIntent);
     } catch (ActivityNotFoundException e) {
       Log.d("ficsaveM/cantOpenFile", fileName);
-      trackFileCannotOpen();
       Toast.makeText(mainActivityContext, "You don't have a supported ebook reader",
           Toast.LENGTH_LONG).show();
     }
@@ -243,7 +210,5 @@ class FicsaveDownloadListener implements DownloadListener {
     Toast.makeText(mainActivityContext, R.string.downloading_file_toast_msg,
         //To notify the Client that the file is being downloaded
         Toast.LENGTH_LONG).show();
-
-    sendGTrackerEvent("DownloadEnqueued");
   }
 }

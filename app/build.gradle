@@ -34,14 +34,10 @@ dependencies {
   implementation "com.android.support:support-vector-drawable:${rootProject.ext.supportLibVersion}"
   implementation "com.android.support:support-v4:${rootProject.ext.supportLibVersion}"
   implementation "com.android.support:cardview-v7:${rootProject.ext.supportLibVersion}"
-  implementation "com.google.android.gms:play-services-analytics:${rootProject.ext.gmsPlayServicesAnalyticsVersion}"
   implementation "com.google.firebase:firebase-messaging:${rootProject.ext.gmsFirebaseMessagingVersion}"
-  implementation "com.google.firebase:firebase-core:${rootProject.ext.gmsFirebaseCoreVersion}"
 
   androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
   androidTestImplementation 'com.android.support.test:runner:1.0.2'
   androidTestImplementation 'com.android.support.test:rules:1.0.2'
   testImplementation "junit:junit:${rootProject.ext.jUnitVersion}"
 }
-
-apply plugin: 'com.google.gms.google-services'
