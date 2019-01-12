@@ -15,6 +15,11 @@ android {
     return void
   }
   buildTypes {
+    debug {
+      shrinkResources false
+      minifyEnabled false
+      proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+    }
     release {
       shrinkResources true
       minifyEnabled true
@@ -35,8 +40,11 @@ dependencies {
   implementation "com.android.support:support-v4:${rootProject.ext.supportLibVersion}"
   implementation "com.android.support:cardview-v7:${rootProject.ext.supportLibVersion}"
 
-  androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+  testImplementation "junit:junit:${rootProject.ext.jUnitVersion}"
+  androidTestImplementation "com.android.support:support-annotations:${rootProject.ext.supportLibVersion}"
+  // AndroidJUnitRunner and JUnit Rules
   androidTestImplementation 'com.android.support.test:runner:1.0.2'
   androidTestImplementation 'com.android.support.test:rules:1.0.2'
-  testImplementation "junit:junit:${rootProject.ext.jUnitVersion}"
+  // Espresso dependencies
+  androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 }

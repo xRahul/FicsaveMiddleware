@@ -44,7 +44,9 @@
 
     <string name="privacy_policy_html">
         <![CDATA[
-            <p>I do not own ficsave. And I am not tracking anything.</p>
+            <p>I do not own ficsave. And I am not tracking you activities.</p>
+            <p>Please do visit and support the ficsave website.</p>
+            <p>Hope you have fun using this app and that it has made the process really smooth.</p>
         ]]>
 
     </string>

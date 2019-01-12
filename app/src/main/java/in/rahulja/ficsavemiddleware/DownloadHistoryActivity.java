@@ -1,6 +1,7 @@
 package in.rahulja.ficsavemiddleware;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.ArrayAdapter;
@@ -14,20 +15,51 @@ import org.json.JSONObject;
 public class DownloadHistoryActivity extends AppCompatActivity {
 
   public static final String DOWNLOAD_HISTORY_FILENAME = "fm_download_history.json";
-  private ListView lv;
+  private ListView listView;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_download_history);
-
-    lv = findViewById(R.id.history_list_view);
+    listView = findViewById(R.id.history_list_view);
   }
 
   @Override
   public void onResume() {
     super.onResume();  // Always call the superclass method first
+    JSONArray jsonArray = getHistoryDataFromFile();
+    ArrayList<String> listData = createHistoryList(jsonArray);
+    setHistoryListToListView(listData);
+  }
 
+  private void setHistoryListToListView(ArrayList<String> listData) {
+    ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(
+        this,
+        R.layout.history_item,
+        R.id.history_list_item_textview,
+        listData);
+    listView.setAdapter(arrayAdapter);
+  }
+
+  @NonNull private ArrayList<String> createHistoryList(JSONArray jsonArray) {
+    ArrayList<String> listData = new ArrayList<>();
+    for (int i = jsonArray.length() - 1; i >= 0; i--) {
+      try {
+        JSONObject tempObject = jsonArray.getJSONObject(i);
+        listData.add(
+            String.valueOf(tempObject.get("datetime"))
+                + "\n"
+                + tempObject.get("name")
+        );
+      } catch (JSONException e) {
+        Log.e("FM/error", e.toString());
+      }
+    }
+    Log.d("FM/historyList", listData.toString());
+    return listData;
+  }
+
+  @NonNull private JSONArray getHistoryDataFromFile() {
     FileInputStream fis;
     JSONArray jsonArray = new JSONArray();
     try {
@@ -39,30 +71,6 @@ public class DownloadHistoryActivity extends AppCompatActivity {
     } catch (Exception e) {
       Log.e("FM/error", e.toString());
     }
-
-    ArrayList<String> listData = new ArrayList<>();
-    for (int i = jsonArray.length() - 1; i >= 0; i--) {
-      try {
-        JSONObject tempObject = jsonArray.getJSONObject(i);
-
-        listData.add(
-            String.valueOf(tempObject.get("datetime"))
-                + "\n"
-                + tempObject.get("name")
-        );
-      } catch (JSONException e) {
-        Log.e("FM/error", e.toString());
-      }
-    }
-
-    Log.d("FM/historyList", listData.toString());
-
-    ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(
-        this,
-        R.layout.history_item,
-        R.id.history_list_item_textview,
-        listData);
-
-    lv.setAdapter(arrayAdapter);
+    return jsonArray;
   }
 }

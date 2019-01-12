@@ -30,7 +30,6 @@ This app supports Android Marshmallow (6.0+) and is compiled against Android Ore
 * Download ebook to device or send as attachment directly from ficsave website.
 * Open downloaded eBook by default, or send as attachment via your email app to someone.
 * Added deep link to ficsave.xyz
-* Added google analytics for different events
 * Download History can be seen
 
 ## Screenshots

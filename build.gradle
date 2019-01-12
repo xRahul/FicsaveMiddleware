@@ -37,6 +37,6 @@ ext {
   minSdkVersion = 23
   targetSdkVersion = 28
   applicationId = "in.rahulja.ficsavemiddleware"
-  versionCode = 271
-  versionName = "2.7.1"
+  versionCode = 272
+  versionName = "2.7.2"
 }

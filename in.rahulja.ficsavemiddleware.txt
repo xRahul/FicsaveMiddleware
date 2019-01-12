@@ -13,31 +13,28 @@ This is a wrapper around the ficsave.xyz website.  Opening the website, entering
 the url, choosing options can become tedious after you've read your 100th
 fanfiction. This helps you automate the entire process.
 
-This app supports Android 6.0+
+This app supports Android Marshmallow (6.0+) and is compiled against Android Oreo.
 
-Current Features
 
+## Current Features
 * Share fic url with the app to automate what happens.
 * choose a default eBook format for further actions.
 * Download ebook to device or send as attachment directly from ficsave website.
 * Open downloaded eBook by default, or send as attachment via your email app to someone.
 * Added deep link to ficsave.xyz
-* Added google analytics for different events
-* Download History can be seen
+* Download History can be viewed now
 
-The app tracks basic events to generate google analytics data. This data is
-being used for debugging purposes only.
 .
 
 Repo Type:git
 Repo:https://github.com/xRahul/FicsaveMiddleware.git
 
-Build:2.7.1,271
-    commit=2.7.1
+Build:2.7.2,272
+    commit=2.7.2
     subdir=app
     gradle=yes
 
 Auto Update Mode:Version %v
 Update Check Mode:Tags
-Current Version:2.7.1
-Current Version Code:271
+Current Version:2.7.2
+Current Version Code:272
