@@ -6,7 +6,7 @@ buildscript {
     google()
   }
   dependencies {
-    classpath 'com.android.tools.build:gradle:3.3.2'
+    classpath 'com.android.tools.build:gradle:3.4.2'
     classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.7.0.1622"
 
     // NOTE: Do not place your application dependencies here; they belong
@@ -29,12 +29,12 @@ task clean(type: Delete) {
 // modules in the project.
 ext {
   // The following are only a few examples of the types of properties you can define.
-  compileSdkVersion = 28
+  compileSdkVersion = 29
   // You can also create properties to specify versions for dependencies.
   // Having consistent versions between modules can avoid conflicts with behavior.
   minSdkVersion = 24
-  targetSdkVersion = 28
+  targetSdkVersion = 29
   applicationId = "in.rahulja.ficsavemiddleware"
-  versionCode = 272
-  versionName = "2.7.2"
+  versionCode = 273
+  versionName = "2.7.3"
 }

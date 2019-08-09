@@ -21,7 +21,7 @@
 This is a wrapper around the ficsave.xyz website. 
 Opening the website, entering the url, choosing options can become tedious after you've read your 100th fic.
 
-This app supports Android Marshmallow (6.0+) and is compiled against Android Oreo.
+This app supports Android Marshmallow (6.0+) and is compiled and tested against Android Q (10).
 
 
 ## Current Features
