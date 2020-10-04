@@ -238,7 +238,7 @@ public class SettingsFragment extends PreferenceFragment
   }
 
   private void sendEmailSiteSharedPreferenceChange(SharedPreferences sharedPreferences) {
-    Boolean sendEmailFromSite = sharedPreferences.getBoolean(SEND_EMAIL_SITE_PREFERENCE, true);
+    boolean sendEmailFromSite = sharedPreferences.getBoolean(SEND_EMAIL_SITE_PREFERENCE, true);
     if (sendEmailFromSite) {
       String emailAddress = sharedPreferences.getString(EMAIL_ADDRESS_TO_SEND_TO, "");
       if (!Patterns.EMAIL_ADDRESS.matcher(emailAddress).matches()) {
@@ -263,7 +263,7 @@ public class SettingsFragment extends PreferenceFragment
   }
 
   private void sendEmailDeviceSharedPreferenceChange(SharedPreferences sharedPreferences) {
-    Boolean sendEmailFromDevice = sharedPreferences.getBoolean(SEND_EMAIL_DEVICE_PREFERENCE, true);
+    boolean sendEmailFromDevice = sharedPreferences.getBoolean(SEND_EMAIL_DEVICE_PREFERENCE, true);
     if (sendEmailFromDevice) {
       String emailAddress = sharedPreferences.getString(EMAIL_ADDRESS_TO_SEND_TO, "");
       if (!Patterns.EMAIL_ADDRESS.matcher(emailAddress).matches()) {
@@ -276,14 +276,14 @@ public class SettingsFragment extends PreferenceFragment
   }
 
   private void openFileSharedPreferenceChange(SharedPreferences sharedPreferences) {
-    Boolean openFileOnDevice = sharedPreferences.getBoolean(OPEN_FILE_PREFERENCE, true);
+    boolean openFileOnDevice = sharedPreferences.getBoolean(OPEN_FILE_PREFERENCE, true);
     if (openFileOnDevice) {
       sharedPreferences.edit().putBoolean(SEND_EMAIL_DEVICE_PREFERENCE, false).apply();
     }
   }
 
   private void downloadFileSharedPreferenceChange(SharedPreferences sharedPreferences) {
-    Boolean downloadFileToDevice = sharedPreferences.getBoolean(DOWNLOAD_FILE_PREFERENCE, true);
+    boolean downloadFileToDevice = sharedPreferences.getBoolean(DOWNLOAD_FILE_PREFERENCE, true);
     if (downloadFileToDevice) {
       sharedPreferences.edit().putBoolean(SEND_EMAIL_SITE_PREFERENCE, false).apply();
     } else {
