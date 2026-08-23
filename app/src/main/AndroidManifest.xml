@@ -19,7 +19,7 @@
   </queries>
 
   <application
-      android:name=".FicsaveMiddlewareApplication"
+      android:name=".FicHubMiddlewareApplication"
       android:allowBackup="true"
       android:fullBackupContent="true"
       android:icon="@mipmap/ic_launcher"

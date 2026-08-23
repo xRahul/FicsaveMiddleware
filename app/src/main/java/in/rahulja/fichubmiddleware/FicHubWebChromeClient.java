@@ -1,14 +1,14 @@
-package in.rahulja.ficsavemiddleware;
+package in.rahulja.fichubmiddleware;
 
 import android.util.Log;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.widget.Toast;
 
-class FicsaveWebChromeClient extends WebChromeClient {
+class FicHubWebChromeClient extends WebChromeClient {
   private MainActivity mainActivity;
 
-  FicsaveWebChromeClient(MainActivity activity) {
+  FicHubWebChromeClient(MainActivity activity) {
     mainActivity = activity;
   }
 

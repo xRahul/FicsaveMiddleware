@@ -1,4 +1,4 @@
-package in.rahulja.ficsavemiddleware;
+package in.rahulja.fichubmiddleware;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;

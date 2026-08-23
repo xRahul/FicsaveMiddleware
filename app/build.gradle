@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 
 android {
-  namespace 'in.rahulja.ficsavemiddleware'
+  namespace 'in.rahulja.fichubmiddleware'
   compileSdk rootProject.ext.compileSdkVersion
 
   defaultConfig {

@@ -1,4 +1,4 @@
-package in.rahulja.ficsavemiddleware;
+package in.rahulja.fichubmiddleware;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -181,9 +181,9 @@ public class MainActivity extends AppCompatActivity {
 
     if (webView != null) {
       // set listeners and clients to webView
-      webView.setWebViewClient(new FicsaveWebViewClient(this));
-      webView.setWebChromeClient(new FicsaveWebChromeClient(this));
-      webView.setDownloadListener(new FicsaveDownloadListener(this));
+      webView.setWebViewClient(new FicHubWebViewClient(this));
+      webView.setWebChromeClient(new FicHubWebChromeClient(this));
+      webView.setDownloadListener(new FicHubDownloadListener(this));
 
       // enable external javascript to run on page
       webView.getSettings().setJavaScriptEnabled(true);

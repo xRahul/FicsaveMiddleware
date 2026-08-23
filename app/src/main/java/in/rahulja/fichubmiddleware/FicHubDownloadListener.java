@@ -1,4 +1,4 @@
-package in.rahulja.ficsavemiddleware;
+package in.rahulja.fichubmiddleware;
 
 import android.app.DownloadManager;
 import android.app.DownloadManager.Request;
@@ -29,7 +29,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-class FicsaveDownloadListener implements DownloadListener {
+class FicHubDownloadListener implements DownloadListener {
   private static final String OPEN_FILE_PREFERENCE = "open_file_preference";
   private static final String SEND_EMAIL_DEVICE_PREFERENCE = "send_email_device_preference";
   private static final String EMAIL_ADDRESS_TO_SEND_TO = "email_address_to_send_to";
@@ -45,7 +45,7 @@ class FicsaveDownloadListener implements DownloadListener {
   private long fileDownloadId;
   private String fileName;
 
-  FicsaveDownloadListener(MainActivity context) {
+  FicHubDownloadListener(MainActivity context) {
     mainActivityContext = context;
     prefs = PreferenceManager.getDefaultSharedPreferences(mainActivityContext);
   }

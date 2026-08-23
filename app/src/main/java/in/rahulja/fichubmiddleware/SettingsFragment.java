@@ -1,4 +1,4 @@
-package in.rahulja.ficsavemiddleware;
+package in.rahulja.fichubmiddleware;
 
 import android.app.DialogFragment;
 import android.content.Intent;

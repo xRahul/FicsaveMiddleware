@@ -1,4 +1,4 @@
-package in.rahulja.ficsavemiddleware;
+package in.rahulja.fichubmiddleware;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -7,12 +7,12 @@ import android.util.Log;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-class FicsaveWebViewClient extends WebViewClient {
+class FicHubWebViewClient extends WebViewClient {
 
   private static final String URL_LABEL = "Url: ";
   private MainActivity mainActivity;
 
-  FicsaveWebViewClient(MainActivity activity) {
+  FicHubWebViewClient(MainActivity activity) {
     mainActivity = activity;
   }
 

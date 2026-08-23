@@ -1,4 +1,4 @@
-package in.rahulja.ficsavemiddleware;
+package in.rahulja.fichubmiddleware;
 
 import android.os.Bundle;
 import androidx.annotation.NonNull;
@@ -64,7 +64,7 @@ public class DownloadHistoryActivity extends AppCompatActivity {
     JSONArray jsonArray = new JSONArray();
     try {
       fis = openFileInput(DOWNLOAD_HISTORY_FILENAME);
-      String historyFileData = FicsaveDownloadListener.convertStreamToString(fis);
+      String historyFileData = FicHubDownloadListener.convertStreamToString(fis);
       jsonArray = new JSONArray(historyFileData);
       Log.d("FM/HISTaCTIV", jsonArray.toString());
       fis.close();

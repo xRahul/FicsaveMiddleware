@@ -5,7 +5,7 @@
     android:id="@+id/activity_download_history"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="in.rahulja.ficsavemiddleware.DownloadHistoryActivity">
+    tools:context="in.rahulja.fichubmiddleware.DownloadHistoryActivity">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/download_history_toolbar"
