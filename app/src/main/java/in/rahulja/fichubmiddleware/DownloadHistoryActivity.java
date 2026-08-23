@@ -6,15 +6,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import java.io.FileInputStream;
+import java.io.File;
 import java.util.ArrayList;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import java.util.List;
 
 public class DownloadHistoryActivity extends AppCompatActivity {
 
-  public static final String DOWNLOAD_HISTORY_FILENAME = "fm_download_history.json";
   private ListView listView;
 
   @Override
@@ -27,8 +24,8 @@ public class DownloadHistoryActivity extends AppCompatActivity {
   @Override
   public void onResume() {
     super.onResume();  // Always call the superclass method first
-    JSONArray jsonArray = getHistoryDataFromFile();
-    ArrayList<String> listData = createHistoryList(jsonArray);
+    List<DownloadHistoryStore.Entry> entries = getHistoryEntries();
+    ArrayList<String> listData = createHistoryList(entries);
     setHistoryListToListView(listData);
   }
 
@@ -41,36 +38,20 @@ public class DownloadHistoryActivity extends AppCompatActivity {
     listView.setAdapter(arrayAdapter);
   }
 
-  @NonNull private ArrayList<String> createHistoryList(JSONArray jsonArray) {
+  @NonNull private ArrayList<String> createHistoryList(
+      List<DownloadHistoryStore.Entry> entries) {
     ArrayList<String> listData = new ArrayList<>();
-    for (int i = jsonArray.length() - 1; i >= 0; i--) {
-      try {
-        JSONObject tempObject = jsonArray.getJSONObject(i);
-        listData.add(
-            String.valueOf(tempObject.get("datetime"))
-                + "\n"
-                + tempObject.get("name")
-        );
-      } catch (JSONException e) {
-        Log.e("FM/error", e.toString());
-      }
+    for (int i = entries.size() - 1; i >= 0; i--) {
+      DownloadHistoryStore.Entry entry = entries.get(i);
+      listData.add(entry.getDatetime() + "\n" + entry.getName());
     }
     Log.d("FM/historyList", listData.toString());
     return listData;
   }
 
-  @NonNull private JSONArray getHistoryDataFromFile() {
-    FileInputStream fis;
-    JSONArray jsonArray = new JSONArray();
-    try {
-      fis = openFileInput(DOWNLOAD_HISTORY_FILENAME);
-      String historyFileData = FicHubDownloadListener.convertStreamToString(fis);
-      jsonArray = new JSONArray(historyFileData);
-      Log.d("FM/HISTaCTIV", jsonArray.toString());
-      fis.close();
-    } catch (Exception e) {
-      Log.e("FM/error", e.toString());
-    }
-    return jsonArray;
+  @NonNull private List<DownloadHistoryStore.Entry> getHistoryEntries() {
+    DownloadHistoryStore historyStore = new DownloadHistoryStore(
+        new File(getFilesDir(), DownloadHistoryStore.DOWNLOAD_HISTORY_FILENAME));
+    return historyStore.read();
   }
 }

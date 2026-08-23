@@ -16,25 +16,17 @@ import android.webkit.CookieManager;
 import android.webkit.DownloadListener;
 import android.webkit.URLUtil;
 import android.widget.Toast;
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.nio.charset.StandardCharsets;
+
+import androidx.core.content.ContextCompat;
+
+import java.io.File;
 import java.text.DateFormat;
 import java.util.Date;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 class FicHubDownloadListener implements DownloadListener {
   private static final String OPEN_FILE_PREFERENCE = "open_file_preference";
   private static final String SEND_EMAIL_DEVICE_PREFERENCE = "send_email_device_preference";
   private static final String EMAIL_ADDRESS_TO_SEND_TO = "email_address_to_send_to";
-  private static final String DOWNLOAD_HISTORY_FILENAME = "fm_download_history.json";
-  private static final String FM_ERROR = "FM/Error";
   private final SharedPreferences prefs;
   private MainActivity mainActivityContext;
   private DownloadManager downloadManager;
@@ -48,18 +40,6 @@ class FicHubDownloadListener implements DownloadListener {
   FicHubDownloadListener(MainActivity context) {
     mainActivityContext = context;
     prefs = PreferenceManager.getDefaultSharedPreferences(mainActivityContext);
-  }
-
-  @SuppressWarnings("WeakerAccess")
-  public static String convertStreamToString(InputStream is) throws IOException {
-    BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
-    StringBuilder sb = new StringBuilder();
-    String line;
-    while ((line = reader.readLine()) != null) {
-      sb.append(line).append("\n");
-    }
-    reader.close();
-    return sb.toString();
   }
 
   @Override
@@ -83,62 +63,44 @@ class FicHubDownloadListener implements DownloadListener {
     BroadcastReceiver onComplete = new BroadcastReceiver() {
       @Override
       public void onReceive(Context context, Intent intent) {
-        Log.d("ficsaveM/Dcomplete", intent.toString());
-        // Prevents the occasional unintentional call. I needed this.
-        if (fileDownloadId == -1
-            || intent.getExtras() == null
-            || fileDownloadId != (long) intent.getExtras()
-            .get("extra_download_id")) {
-          return;
-        }
-        // Grabs the Uri for the file that was downloaded.
-        Uri mostRecentDownload = downloadManager.getUriForDownloadedFile(fileDownloadId);
-        JSONArray jsonArray = new JSONArray();
         try {
-          FileInputStream fis = mainActivityContext.openFileInput(DOWNLOAD_HISTORY_FILENAME);
-          String historyFileData = convertStreamToString(fis);
-          jsonArray = new JSONArray(historyFileData);
-          fis.close();
-        } catch (Exception e) {
-          Log.e(FM_ERROR, e.toString());
-        }
+          Log.d("ficsaveM/Dcomplete", intent.toString());
+          // Prevents the occasional unintentional call. I needed this.
+          if (fileDownloadId == -1
+              || intent.getExtras() == null
+              || fileDownloadId != (long) intent.getExtras()
+              .get("extra_download_id")) {
+            return;
+          }
+          // Grabs the Uri for the file that was downloaded.
+          Uri mostRecentDownload =
+              downloadManager.getUriForDownloadedFile(fileDownloadId);
+          DownloadHistoryStore historyStore = new DownloadHistoryStore(
+              new File(mainActivityContext.getFilesDir(),
+                  DownloadHistoryStore.DOWNLOAD_HISTORY_FILENAME));
+          historyStore.append(
+              fileName,
+              mostRecentDownload.toString(),
+              DateFormat.getDateTimeInstance().format(new Date()));
 
-        JSONObject newFileData = new JSONObject();
-        try {
-          newFileData.put("name", fileName);
-          newFileData.put("path", mostRecentDownload);
-          newFileData.put("datetime", DateFormat.getDateTimeInstance().format(new Date()));
-          Log.d("FM/FILE_DATA", jsonArray.toString());
-          Log.d("FM/NEW_FILE_DATA", newFileData.toString());
-          jsonArray.put(newFileData);
-        } catch (JSONException e) {
-          Log.e(FM_ERROR, e.toString());
+          if (prefs.getBoolean(OPEN_FILE_PREFERENCE, true)) {
+            openFileOnDevice(mostRecentDownload);
+          }
+          if (prefs.getBoolean(SEND_EMAIL_DEVICE_PREFERENCE, true)) {
+            emailFileFromDevice(mostRecentDownload);
+          }
+          // Sets up the prevention of an unintentional call.
+          // I found it necessary. Maybe not for others.
+          fileDownloadId = -1;
+        } finally {
+          mainActivityContext.unregisterReceiver(this);
         }
-
-        try (OutputStreamWriter writer = new OutputStreamWriter(
-            mainActivityContext.openFileOutput(DOWNLOAD_HISTORY_FILENAME, Context.MODE_PRIVATE),
-            StandardCharsets.UTF_8)
-        ) {
-          writer.write(jsonArray.toString());
-        } catch (IOException e) {
-          Log.e(FM_ERROR, e.toString());
-        }
-
-        if (prefs.getBoolean(OPEN_FILE_PREFERENCE, true)) {
-          openFileOnDevice(mostRecentDownload);
-        }
-        if (prefs.getBoolean(SEND_EMAIL_DEVICE_PREFERENCE, true)) {
-          emailFileFromDevice(mostRecentDownload);
-        }
-        // Sets up the prevention of an unintentional call.
-        // I found it necessary. Maybe not for others.
-        fileDownloadId = -1;
-        mainActivityContext.unregisterReceiver(this);
       }
     };
     // Registers function to listen to the completion of the download.
-    mainActivityContext.registerReceiver(onComplete, new
-        IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+    ContextCompat.registerReceiver(mainActivityContext, onComplete,
+        new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE),
+        ContextCompat.RECEIVER_EXPORTED);
   }
 
   private void openFileOnDevice(Uri mostRecentDownload) {
@@ -147,7 +109,8 @@ class FicHubDownloadListener implements DownloadListener {
     String mimeType =
         downloadManager.getMimeTypeForDownloadedFile(fileDownloadId);
     fileIntent.setDataAndType(mostRecentDownload, mimeType);
-    fileIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+    fileIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+        | Intent.FLAG_GRANT_READ_URI_PERMISSION);
     try {
       mainActivityContext.startActivity(fileIntent);
     } catch (ActivityNotFoundException e) {
@@ -160,6 +123,7 @@ class FicHubDownloadListener implements DownloadListener {
   private void emailFileFromDevice(Uri mostRecentDownload) {
     Intent emailIntent = new Intent(Intent.ACTION_SEND);
     emailIntent.setType("message/rfc822");
+    emailIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
     String emailAddress = prefs.getString(EMAIL_ADDRESS_TO_SEND_TO, "");
     String[] to = { emailAddress };
     emailIntent.putExtra(Intent.EXTRA_EMAIL, to);
