@@ -272,4 +272,12 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     super.onPause();
     prefs.unregisterOnSharedPreferenceChangeListener(listener);
   }
+
+  @Override
+  public void onDestroy() {
+    super.onDestroy();
+    if (versionCheckExecutor != null) {
+      versionCheckExecutor.shutdown();
+    }
+  }
 }
