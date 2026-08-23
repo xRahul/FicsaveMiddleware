@@ -11,8 +11,8 @@ allprojects {
   }
 }
 
-task clean(type: Delete) {
-  delete rootProject.buildDir
+tasks.register('clean', Delete) {
+  delete rootProject.layout.buildDirectory
 }
 
 // This block encapsulates custom properties and makes them available to all

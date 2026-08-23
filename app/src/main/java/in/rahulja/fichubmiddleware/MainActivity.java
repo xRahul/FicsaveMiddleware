@@ -169,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
    * Show Progress Bar.
    */
   public void showHorizontalLoader() {
-    // Hide progress item
+    // Show progress item
     if (pbHorizontal != null) {
       pbHorizontal.setVisibility(View.VISIBLE);
     }
@@ -239,7 +239,8 @@ public class MainActivity extends AppCompatActivity {
       Log.d(TAG + "/intentReceived", intentAction + " " + intent.toString());
       if (Intent.ACTION_SEND.equals(intentAction) && "text/plain".equals(
           intentType)) {
-        Matcher m = Patterns.WEB_URL.matcher(intent.getStringExtra(Intent.EXTRA_TEXT));
+        String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
+        Matcher m = Patterns.WEB_URL.matcher(sharedText != null ? sharedText : "");
         while (m.find()) {
           ficUrl = m.group();
           Log.d(TAG + "/setIntFicUrl", "URL extracted: " + ficUrl);
@@ -255,6 +256,7 @@ public class MainActivity extends AppCompatActivity {
       @NonNull String[] permissions,
       @NonNull int[] grantResults
   ) {
+    super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     if (requestCode == PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE) {
       if (grantResults.length > 0
           && grantResults[0] == PackageManager.PERMISSION_GRANTED) {

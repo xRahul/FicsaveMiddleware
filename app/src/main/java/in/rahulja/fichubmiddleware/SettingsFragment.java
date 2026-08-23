@@ -95,20 +95,21 @@ public class SettingsFragment extends PreferenceFragmentCompat {
           String latestVersion =
               new JSONObject(responseBody.toString()).getString("tag_name");
           Log.d("ficsaveM/updateUrl", latestVersion);
-
-          if (latestVersion.equals(BuildConfig.VERSION_NAME)) {
-            versionSummary = BuildConfig.VERSION_NAME + " "
-                + getString(R.string.version_summary_latest);
-          } else {
-            versionSummary = BuildConfig.VERSION_NAME + " "
-                + "(" + getString(R.string.version_summary_changed_latest) + latestVersion + ")";
-          }
+          boolean isLatest = latestVersion.equals(BuildConfig.VERSION_NAME);
 
           if (getActivity() != null && !isDetached() && !isRemoving()) {
             getActivity().runOnUiThread(new Runnable() {
               @Override
               public void run() {
                 if (versionPref != null) {
+                  if (isLatest) {
+                    versionSummary = BuildConfig.VERSION_NAME + " "
+                        + getString(R.string.version_summary_latest);
+                  } else {
+                    versionSummary = BuildConfig.VERSION_NAME + " "
+                        + "(" + getString(R.string.version_summary_changed_latest)
+                        + latestVersion + ")";
+                  }
                   versionPref.setSummary(versionSummary);
                   Log.d("ficsaveM/versionChecked", versionSummary);
                 }
