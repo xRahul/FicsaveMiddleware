@@ -80,6 +80,17 @@ public class DownloadHistoryStoreTest {
   }
 
   @Test
+  public void appendLeavesNoTempFileResidue() {
+    store.append("a.epub", "/path/a", "dt1");
+    store.append("b.epub", "/path/b", "dt2");
+
+    assertEquals(2, store.read().size());
+    File[] tmpFiles = tmp.getRoot().listFiles((dir, name) -> name.endsWith(".tmp"));
+    assertTrue(tmpFiles != null);
+    assertEquals(0, tmpFiles.length);
+  }
+
+  @Test
   public void appendKeepsExistingEntriesWhenFileAlreadyHasHistory() throws IOException {
     store.append("old.epub", "/path/old", "dtOld");
     // Simulate a legacy file written by the old listener format (same JSON shape).

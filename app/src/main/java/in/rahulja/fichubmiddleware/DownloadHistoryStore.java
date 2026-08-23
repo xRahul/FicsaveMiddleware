@@ -58,6 +58,25 @@ class DownloadHistoryStore {
     while (entries.size() > MAX_ENTRIES) {
       entries.remove(0);
     }
+    JSONArray jsonArray = serialize(entries);
+    // Atomic-ish write: fill a temp file first, then swap it in so a crash or
+    // IO failure mid-write cannot truncate the existing history.
+    File tmpFile = new File(file.getParentFile(), file.getName() + ".tmp");
+    try (OutputStreamWriter writer = new OutputStreamWriter(
+        new FileOutputStream(tmpFile), StandardCharsets.UTF_8)) {
+      writer.write(jsonArray.toString());
+    } catch (IOException e) {
+      Log.e(FM_ERROR, e.toString());
+      tmpFile.delete();
+      return;
+    }
+    if (!tmpFile.renameTo(file)) {
+      Log.e(FM_ERROR, "Could not replace history file with " + tmpFile);
+      tmpFile.delete();
+    }
+  }
+
+  private JSONArray serialize(List<Entry> entries) {
     JSONArray jsonArray = new JSONArray();
     for (Entry entry : entries) {
       JSONObject obj = new JSONObject();
@@ -70,12 +89,7 @@ class DownloadHistoryStore {
       }
       jsonArray.put(obj);
     }
-    try (OutputStreamWriter writer = new OutputStreamWriter(
-        new FileOutputStream(file), StandardCharsets.UTF_8)) {
-      writer.write(jsonArray.toString());
-    } catch (IOException e) {
-      Log.e(FM_ERROR, e.toString());
-    }
+    return jsonArray;
   }
 
   @SuppressWarnings("WeakerAccess")
