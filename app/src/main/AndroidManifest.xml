@@ -40,7 +40,7 @@
         <category android:name="android.intent.category.DEFAULT"/>
         <data android:mimeType="text/*"/>
       </intent-filter>
-      <intent-filter android:label="@string/filter_title_open_ficsave_site">
+      <intent-filter android:label="@string/filter_title_open_fichub_site">
         <action android:name="android.intent.action.VIEW"/>
 
         <category android:name="android.intent.category.DEFAULT"/>

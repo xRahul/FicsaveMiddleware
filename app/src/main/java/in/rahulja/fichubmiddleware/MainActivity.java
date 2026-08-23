@@ -5,8 +5,8 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.preference.PreferenceManager;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -18,7 +18,6 @@ import android.util.Patterns;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.webkit.ValueCallback;
 import android.webkit.WebView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -26,15 +25,15 @@ import java.util.regex.Matcher;
 
 public class MainActivity extends AppCompatActivity {
 
+  private static final String TAG = "fichubM";
   private static final String FILE_TYPES_PREFERENCE = "file_types_preference";
-  private static final String SEND_EMAIL_SITE_PREFERENCE = "send_email_site_preference";
-  private static final String EMAIL_ADDRESS_TO_SEND_TO = "email_address_to_send_to";
   private static final int PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1;
   private ProgressBar pbHorizontal;
   private ProgressBar pbCircle;
   private WebView webView;
   private SharedPreferences prefs;
   private String ficUrl = "";
+  private boolean pendingAutoFormat = false;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -70,16 +69,21 @@ public class MainActivity extends AppCompatActivity {
   }
 
   private void prepare() {
-    // check permission of external storage
-    if (ContextCompat.checkSelfPermission(getApplicationContext(),
-        Manifest.permission.WRITE_EXTERNAL_STORAGE)
-        != PackageManager.PERMISSION_GRANTED) {
-      // ask for permission
-      ActivityCompat.requestPermissions(this,
-          new String[] { Manifest.permission.WRITE_EXTERNAL_STORAGE },
-          PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
+    // WRITE_EXTERNAL_STORAGE only exists up to Android 9 (API 28)
+    if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
+      // check permission of external storage
+      if (ContextCompat.checkSelfPermission(getApplicationContext(),
+          Manifest.permission.WRITE_EXTERNAL_STORAGE)
+          != PackageManager.PERMISSION_GRANTED) {
+        // ask for permission
+        ActivityCompat.requestPermissions(this,
+            new String[] { Manifest.permission.WRITE_EXTERNAL_STORAGE },
+            PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
+      } else {
+        // initialize the app if permission exists
+        init();
+      }
     } else {
-      // initialize the app if permission exists
       init();
     }
   }
@@ -165,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
    * Show Progress Bar.
    */
   public void showHorizontalLoader() {
-    // Show progress item
+    // Hide progress item
     if (pbHorizontal != null) {
       pbHorizontal.setVisibility(View.VISIBLE);
     }
@@ -188,13 +192,28 @@ public class MainActivity extends AppCompatActivity {
       // enable external javascript to run on page
       webView.getSettings().setJavaScriptEnabled(true);
 
-      // load the ficsave homepage
-      String ficsaveHomePage = "http://" + getString(R.string.ficsave_host);
-      String urlToLoad = intentViewUrl.isEmpty() ? ficsaveHomePage : intentViewUrl;
-      if (webView.getUrl() != null && webView.getUrl().contains(urlToLoad)) {
-        runJSonPage(urlToLoad);
+      String urlToLoad;
+      if (!intentViewUrl.isEmpty()) {
+        urlToLoad = intentViewUrl;
+      } else if (!ficUrl.isEmpty()) {
+        if (!Patterns.WEB_URL.matcher(ficUrl).matches()) {
+          Toast.makeText(
+              getApplicationContext(),
+              getString(R.string.invalid_fic_url) + " " + ficUrl,
+              Toast.LENGTH_LONG
+          ).show();
+        }
+        urlToLoad = FicHubUrls.autoExport(ficUrl);
+        pendingAutoFormat = true;
       } else {
-        Log.d("ficsaveM/load", urlToLoad);
+        urlToLoad = FicHubUrls.home();
+      }
+
+      String currentUrl = webView.getUrl();
+      if (urlToLoad.equals(currentUrl)) {
+        Log.d(TAG + "/load", "already on " + urlToLoad + ", skipping reload");
+      } else {
+        Log.d(TAG + "/load", urlToLoad);
         webView.loadUrl(urlToLoad);
       }
     }
@@ -206,7 +225,7 @@ public class MainActivity extends AppCompatActivity {
     String intentAction = intent.getAction();
     if (Intent.ACTION_VIEW.equals(intentAction) && intent.getData() != null) {
       url = intent.getData().toString();
-      Log.d("ficsaveM/deepLink", url + " " + intent.toString());
+      Log.d(TAG + "/deepLink", url + " " + intent.toString());
     }
     return url;
   }
@@ -217,14 +236,14 @@ public class MainActivity extends AppCompatActivity {
     if (intent != null) {
       String intentType = intent.getType();
       String intentAction = intent.getAction();
-      Log.d("ficsaveM/intentReceived", intentAction + " " + intent.toString());
+      Log.d(TAG + "/intentReceived", intentAction + " " + intent.toString());
       if (Intent.ACTION_SEND.equals(intentAction) && "text/plain".equals(
           intentType)) {
         Matcher m = Patterns.WEB_URL.matcher(intent.getStringExtra(Intent.EXTRA_TEXT));
         while (m.find()) {
-          String url = m.group();
-          ficUrl = url;
-          Log.d("ficsaveM/setIntFicUrl", "URL extracted: " + url);
+          ficUrl = m.group();
+          Log.d(TAG + "/setIntFicUrl", "URL extracted: " + ficUrl);
+          break;
         }
       }
     }
@@ -241,7 +260,7 @@ public class MainActivity extends AppCompatActivity {
           && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
         init();
       } else {
-        Log.d("ficsaveM/permission", "WRITE_EXTERNAL_STORAGE Permission Denied");
+        Log.d(TAG + "/permission", "WRITE_EXTERNAL_STORAGE Permission Denied");
         Toast.makeText(
             getApplicationContext(),
             R.string.give_permission_toast_msg,
@@ -252,87 +271,34 @@ public class MainActivity extends AppCompatActivity {
   }
 
   /**
-   * Execute JavaScript on the Web Page.
+   * Inject the format auto-click script once per pending shared fic URL,
+   * after fichub.net finished rendering its export results.
    *
-   * @param url URL to execute JS on.
+   * @param view the WebView that finished loading
    */
-  public void runJSonPage(String url) {
-    Log.d("ficsaveM/runJSCalled", url + " " + ficUrl);
-    // Check if not loading the download URL and some fanfic url is there to download
-    if (!url.contains(getString(R.string.ficsave_download_url))) {
-
-      if (!ficUrl.isEmpty() && !Patterns.WEB_URL.matcher(ficUrl).matches()) {
-        Toast.makeText(
-            getApplicationContext(),
-            R.string.invalid_fic_url + " " + ficUrl,
-            Toast.LENGTH_LONG
-        ).show();
-      }
-
-      // Get javascript to run on page
-      final String jsString = getJsScript();
-
-      // Execute Javascript on a new thread 2 second after page load
-      Log.d("ficsaveM/JSrun", "Start");
-
-      new Handler().postDelayed(new Runnable() {
-        @Override
-        public void run() {
-          webView.evaluateJavascript(jsString, new ValueCallback<String>() {
-            @Override
-            public void onReceiveValue(String value) {
-              Log.d("ficsaveM/JSrun", "Success, Value: " + value);
-
-              // empty the fanfic url so it won't get downloaded again somehow
-              ficUrl = "";
-            }
-          });
-        }
-      }, 2000);
+  void maybeInjectAutoClickJs(WebView view) {
+    if (!pendingAutoFormat) {
+      return;
     }
+
+    pendingAutoFormat = false;
+
+    String currentUrl = view.getUrl();
+    if (currentUrl == null || !currentUrl.contains("q=")) {
+      return;
+    }
+
+    String format = prefs.getString(FILE_TYPES_PREFERENCE, "epub");
+    Log.d(TAG + "/JSrun", "auto-click inject, format: " + format);
+    view.evaluateJavascript(buildAutoClickJs(format), null);
   }
 
-  private String getJsScript() {
-
-    String jsScript = "";
-
-    if (!ficUrl.isEmpty()) {
-      jsScript += "document.getElementsByClassName(\"grey-text text-lighten-1\")[0].className = "
-          + "\"grey-text text-lighten-1 active\";"
-          + "document.getElementById('url').value = \""
-          + ficUrl
-          + "\";";
-    }
-
-    if (prefs.getBoolean(SEND_EMAIL_SITE_PREFERENCE, false)) {
-      jsScript += "document.getElementsByClassName(\"grey-text text-lighten-1\")[2].className = "
-          + "\"grey-text text-lighten-1 active\";"
-          + "document.getElementById('email').value = \""
-          + prefs.getString(EMAIL_ADDRESS_TO_SEND_TO, "")
-          + "\";";
-    }
-
-    switch (prefs.getString(FILE_TYPES_PREFERENCE, "mobi")) {
-      case "mobi":
-        jsScript += "document.getElementsByClassName('select-dropdown')[0].value = \"MOBI\";"
-            + "document.getElementsByName('format')[0].value = \"mobi\";";
-        break;
-      case "epub":
-        jsScript += "document.getElementsByClassName('select-dropdown')[0].value = \"ePub\";"
-            + "document.getElementsByName('format')[0].value = \"epub\";";
-        break;
-      case "txt":
-        jsScript += "document.getElementsByClassName('select-dropdown')[0].value = \"Text\";"
-            + "document.getElementsByName('format')[0].value = \"txt\";";
-        break;
-      default:
-        break;
-    }
-
-    if (!ficUrl.isEmpty()) {
-      jsScript += "document.getElementById(\"download-submit\").click();";
-    }
-
-    return jsScript;
+  private String buildAutoClickJs(String format) {
+    return "(function(){var want='" + format + "',tries=0;"
+        + "function go(){var as=document.querySelectorAll('#i a');"
+        + "for(var i=0;i<as.length;i++){var t=as[i].textContent||'';"
+        + "if((want=='epub'&&/EPUB/i.test(t))||(want=='html'&&/zipped HTML/i.test(t))"
+        + "||(want=='mobi'&&/MOBI/i.test(t))||(want=='pdf'&&/PDF/i.test(t))){as[i].click();return;}}"
+        + "if(++tries<60)setTimeout(go,1000);}go();})()";
   }
 }

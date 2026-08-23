@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="FileTypes">
-        <item>Mobi</item>
-        <item>ePub</item>
-        <item>Text</item>
+        <item>EPUB</item>
+        <item>MOBI</item>
+        <item>PDF</item>
+        <item>Zipped HTML</item>
     </string-array>
     <string-array name="FileTypesAlias">
-        <item>mobi</item>
         <item>epub</item>
-        <item>txt</item>
+        <item>mobi</item>
+        <item>pdf</item>
+        <item>html</item>
     </string-array>
     <string-array name="FileAction">
         <item>Download</item>

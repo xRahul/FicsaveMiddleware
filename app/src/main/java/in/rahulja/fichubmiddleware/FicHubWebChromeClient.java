@@ -15,7 +15,7 @@ class FicHubWebChromeClient extends WebChromeClient {
   @Override
   public boolean onJsAlert(WebView view, String url, String message,
       final android.webkit.JsResult result) {
-    Log.d("ficsaveM/JSalert", message);
+    Log.d("fichubM/JSalert", message);
     Toast.makeText(mainActivity, message, Toast.LENGTH_LONG).show();
     result.confirm();
     return true;
@@ -27,7 +27,7 @@ class FicHubWebChromeClient extends WebChromeClient {
 
     //Make the bar disappear after URL is loaded, and changes string to Loading...
     mainActivity.setTitle("Loading...");
-    Log.d("ficsaveM/URLprogress", String.valueOf(newProgress));
+    Log.d("fichubM/URLprogress", String.valueOf(newProgress));
     mainActivity.showHorizontalLoader();
     mainActivity.progressHorizontalLoader(newProgress); //Make the bar disappear after URL is loaded
 

@@ -4,28 +4,32 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.util.Log;
+import android.webkit.WebResourceError;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 class FicHubWebViewClient extends WebViewClient {
 
-  private static final String URL_LABEL = "Url: ";
-  private MainActivity mainActivity;
+  private static final String TAG = "fichubM";
+  private final MainActivity mainActivity;
 
   FicHubWebViewClient(MainActivity activity) {
     mainActivity = activity;
   }
 
   @Override
-  @SuppressWarnings("deprecation")
-  public boolean shouldOverrideUrlLoading(WebView view, String url) {
+  public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+    Uri uri = request.getUrl();
+    String host = uri.getHost();
 
-    // if URL's host is ficsave.xyz, open in webview, else let android open it somewhere else
-    if (Uri.parse(url).getHost().equals(mainActivity.getString(R.string.ficsave_host))) {
+    // fichub.net URLs stay in the webview, everything else goes to the browser
+    if (host != null && (host.equals(FicHubUrls.HOST)
+        || host.endsWith("." + FicHubUrls.HOST))) {
       return false;
     }
 
-    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+    Intent intent = new Intent(Intent.ACTION_VIEW, uri);
     mainActivity.startActivity(intent);
 
     return true;
@@ -37,15 +41,16 @@ class FicHubWebViewClient extends WebViewClient {
   }
 
   @Override
-  public void onPageFinished(final WebView view, String url) {
+  public void onPageFinished(WebView view, String url) {
     mainActivity.hideTitleProgressSpinner();
 
-    mainActivity.runJSonPage(url);
+    mainActivity.maybeInjectAutoClickJs(view);
   }
 
   @Override
-  @SuppressWarnings("deprecation")
-  public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
-    Log.d("ficsaveM/ErrorLoading", URL_LABEL + failingUrl + " Reason" + description);
+  public void onReceivedError(WebView view, WebResourceRequest request,
+      WebResourceError error) {
+    Log.d(TAG + "/ErrorLoading",
+        "Url: " + request.getUrl() + " Reason: " + error.getDescription());
   }
 }
