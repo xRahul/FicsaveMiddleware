@@ -30,7 +30,7 @@ jobs:
         with: { distribution: temurin, java-version: '17' }
       - uses: gradle/actions/setup-gradle@v4
       - run: ./gradlew assembleDebug --stacktrace
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v3
         with:
           tag_name: master-debug
           name: Latest master build (debug)
