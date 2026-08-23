@@ -130,15 +130,15 @@ class FicHubDownloadListener implements DownloadListener {
     // the attachment
     emailIntent.putExtra(Intent.EXTRA_STREAM, mostRecentDownload);
     // the mail subject
-    emailIntent.putExtra(Intent.EXTRA_SUBJECT, "FicsaveMiddleware - " + fileName);
+    emailIntent.putExtra(Intent.EXTRA_SUBJECT, "FicHub Middleware - " + fileName);
     // the mail content
     String content = "Hi"
         + "\n\n"
         + "Hope you enjoy the story!"
         + "\n\n"
-        + "Ficsave.xyz is a creation of https://github.com/waylaidwanderer"
+        + "Converted with FicHub - https://fichub.net"
         + "\n"
-        + "and FicsaveMiddleware is created by https://github.com/xRahul.";
+        + "and FicHub Middleware is created by https://github.com/xRahul.";
     emailIntent.putExtra(Intent.EXTRA_TEXT, content);
     mainActivityContext.startActivity(emailIntent);
   }
