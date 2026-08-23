@@ -40,10 +40,6 @@ Per [fichub.net](https://fichub.net/):
 * AdultFanfiction.org
 * Worm / Ward (+ partial list of other sites)
 
-## Screenshots
-
-![Screens](https://github.com/xRahul/FicsaveMiddleware/raw/master/Screenshots/screens.jpg)
-
 ## Build & Test
 
 Requirements:
@@ -60,7 +56,7 @@ Note on package names: the applicationId remains `in.rahulja.ficsavemiddleware` 
 
 ## CI & Releases
 
-GitHub Actions runs build + unit tests + lint on every push to `master` and on all pull requests (`.github/workflows/ci.yml`). Pushing a tag matching `v*` builds a signed APK and attaches it to a GitHub Release (`.github/workflows/release.yml`).
+GitHub Actions runs build + unit tests + lint on every push to `master` and on all pull requests (`.github/workflows/ci.yml`). Every push to `master` also publishes the debug APK to the rolling [Latest master build (debug)](../../releases/tag/master-debug) release. Pushing a tag matching `v*` builds a signed APK and attaches it to a GitHub Release (`.github/workflows/release.yml`).
 
 Signing requires these repository secrets:
 

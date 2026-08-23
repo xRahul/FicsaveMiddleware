@@ -20,3 +20,6 @@ local.properties
 build/
 .codegraph/
 .opencode/
+*.jks
+docs/superpowers/
+Screenshots/

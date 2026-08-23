@@ -18,3 +18,22 @@ jobs:
           path: |
             app/build/outputs/apk/debug/app-debug.apk
             app/build/reports/
+
+  debug-apk-release:
+    if: github.event_name == 'push'
+    needs: build-test-lint
+    runs-on: ubuntu-latest
+    permissions: { contents: write }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '17' }
+      - uses: gradle/actions/setup-gradle@v4
+      - run: ./gradlew assembleDebug --stacktrace
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: master-debug
+          name: Latest master build (debug)
+          body: Debug APK from the latest master push. Updated automatically.
+          files: app/build/outputs/apk/debug/app-debug.apk
+          make_latest: true

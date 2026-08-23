@@ -84,6 +84,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
           URL url = new URL(RELEASES_API_URL);
           HttpURLConnection httpUrlConnection = (HttpURLConnection) url.openConnection();
           httpUrlConnection.setRequestProperty("Accept", "application/vnd.github+json");
+          httpUrlConnection.setConnectTimeout(10_000);
+          httpUrlConnection.setReadTimeout(10_000);
           StringBuilder responseBody = new StringBuilder();
           try (BufferedReader reader = new BufferedReader(new InputStreamReader(
               httpUrlConnection.getInputStream(), StandardCharsets.UTF_8))) {
