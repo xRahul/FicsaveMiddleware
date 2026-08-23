@@ -1,29 +1,30 @@
 package in.rahulja.fichubmiddleware;
 
-import android.app.DialogFragment;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
-import android.preference.Preference;
-import android.preference.PreferenceFragment;
-import android.preference.PreferenceManager;
 import androidx.appcompat.app.AlertDialog;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceManager;
 import android.util.Log;
 import android.util.Patterns;
-import java.io.IOException;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import org.json.JSONObject;
 
-public class SettingsFragment extends PreferenceFragment
-    implements DeveloperDialogFragment.DeveloperDialogListener {
+public class SettingsFragment extends PreferenceFragmentCompat {
 
   public static final String DOWNLOAD_FILE_PREFERENCE = "download_file_preference";
-  public static final String SEND_EMAIL_SITE_PREFERENCE = "send_email_site_preference";
   public static final String OPEN_FILE_PREFERENCE = "open_file_preference";
   public static final String SEND_EMAIL_DEVICE_PREFERENCE = "send_email_device_preference";
   public static final String EMAIL_ADDRESS_TO_SEND_TO = "email_address_to_send_to";
@@ -31,19 +32,19 @@ public class SettingsFragment extends PreferenceFragment
   public static final String PREF_DEVELOPER = "developer";
   public static final String PREF_PRIVACY_POLICY = "privacy_policy";
   public static final String INVALID_EMAIL = "Invalid Email";
+  private static final String RELEASES_API_URL =
+      "https://api.github.com/repos/xRahul/FicsaveMiddleware/releases/latest";
   private OnSharedPreferenceChangeListener listener;
   private Preference emailAddressPref;
   private SharedPreferences prefs;
   private String versionSummary;
   private Preference versionPref;
-  private String latestVersionUrl;
   private Preference developerPref;
   private Preference privacyPolicyPref;
+  private final ExecutorService versionCheckExecutor = Executors.newSingleThreadExecutor();
 
   @Override
-  public void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-
+  public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
     prefs = PreferenceManager.getDefaultSharedPreferences(this.getActivity());
 
     addPreferencesFromResource(R.xml.preferences);
@@ -53,79 +54,72 @@ public class SettingsFragment extends PreferenceFragment
   }
 
   private void initPreferenceView() {
-    latestVersionUrl = getString(R.string.latest_release_url);
     emailAddressPref = findPreference(EMAIL_ADDRESS_TO_SEND_TO);
     versionPref = findPreference(PREF_VERSION);
-    developerPref = findPreference(PREF_DEVELOPER);
-    privacyPolicyPref = findPreference(PREF_PRIVACY_POLICY);
-  }
-
-  private void updatePreferenceView() {
-
-    String emailAddress = prefs.getString(EMAIL_ADDRESS_TO_SEND_TO, "");
-    CharSequence tempSummary;
-    if (emailAddress.isEmpty()) {
-      tempSummary = emailAddressPref.getSummary();
-    } else {
-      tempSummary = emailAddress;
-    }
-
-    getPreferenceScreen().removeAll();
-    addPreferencesFromResource(R.xml.preferences);
-
-    versionPref = findPreference(PREF_VERSION);
-    versionPref.setSummary(versionSummary);
-
-    Preference downloadFolderPref = findPreference(DOWNLOAD_FILE_PREFERENCE);
-    String defaultDownloadFolder = Environment.getExternalStorageDirectory()
-        + "/" + Environment.DIRECTORY_DOCUMENTS;
-    downloadFolderPref.setSummary(defaultDownloadFolder);
-    emailAddressPref = findPreference(EMAIL_ADDRESS_TO_SEND_TO);
-    emailAddressPref.setSummary(tempSummary);
     developerPref = findPreference(PREF_DEVELOPER);
     privacyPolicyPref = findPreference(PREF_PRIVACY_POLICY);
 
     initializePreferenceListener();
   }
 
+  private void updatePreferenceView() {
+    String emailAddress = prefs.getString(EMAIL_ADDRESS_TO_SEND_TO, "");
+    if (emailAddress.isEmpty()) {
+      emailAddressPref.setSummary(R.string.email_address_summary);
+    } else {
+      emailAddressPref.setSummary(emailAddress);
+    }
+
+    versionPref.setSummary(versionSummary);
+
+    findPreference(DOWNLOAD_FILE_PREFERENCE).setSummary("Documents");
+  }
+
   private void checkLatestAppVersion() {
     versionSummary = BuildConfig.VERSION_NAME;
-    Thread thread = new Thread(new Runnable() {
+    versionCheckExecutor.execute(new Runnable() {
       @Override
       public void run() {
         try {
-          URL url = new URL(getString(R.string.latest_release_url));
+          URL url = new URL(RELEASES_API_URL);
           HttpURLConnection httpUrlConnection = (HttpURLConnection) url.openConnection();
-          httpUrlConnection.setInstanceFollowRedirects(false);
-          String secondUrl =
-              String.valueOf(new URL(httpUrlConnection.getHeaderField("Location")));
-          String latestVersion = Uri.parse(secondUrl).getLastPathSegment();
-          Log.d("ficsaveM/updateUrl", secondUrl);
-          if (getActivity() != null) {
-            String checkUrl =
-                getString(R.string.current_release_url_prefix) + BuildConfig.VERSION_NAME;
-            if (secondUrl.equals(checkUrl)) {
-              versionSummary = BuildConfig.VERSION_NAME + " "
-                  + getString(R.string.version_summary_latest);
-            } else {
-              versionSummary = BuildConfig.VERSION_NAME + " "
-                  + "(" + getString(R.string.version_summary_changed_latest) + latestVersion + ")";
+          httpUrlConnection.setRequestProperty("Accept", "application/vnd.github+json");
+          StringBuilder responseBody = new StringBuilder();
+          try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+              httpUrlConnection.getInputStream(), StandardCharsets.UTF_8))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+              responseBody.append(line);
             }
+          }
+          String latestVersion =
+              new JSONObject(responseBody.toString()).getString("tag_name");
+          Log.d("ficsaveM/updateUrl", latestVersion);
 
+          if (latestVersion.equals(BuildConfig.VERSION_NAME)) {
+            versionSummary = BuildConfig.VERSION_NAME + " "
+                + getString(R.string.version_summary_latest);
+          } else {
+            versionSummary = BuildConfig.VERSION_NAME + " "
+                + "(" + getString(R.string.version_summary_changed_latest) + latestVersion + ")";
+          }
+
+          if (getActivity() != null && !isDetached() && !isRemoving()) {
             getActivity().runOnUiThread(new Runnable() {
               @Override
               public void run() {
-                versionPref.setSummary(versionSummary);
-                Log.d("ficsaveM/versionChecked", versionSummary);
+                if (versionPref != null) {
+                  versionPref.setSummary(versionSummary);
+                  Log.d("ficsaveM/versionChecked", versionSummary);
+                }
               }
             });
           }
-        } catch (IOException e) {
+        } catch (Exception e) {
           Log.e("FM/SettingsFragment", Arrays.toString(e.getStackTrace()));
         }
       }
     });
-    thread.start();
   }
 
   private void initializePreferenceListener() {
@@ -151,8 +145,6 @@ public class SettingsFragment extends PreferenceFragment
         Intent intent =
             new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.developer_url)));
         startActivity(intent);
-        /* DialogFragment dialog = new DeveloperDialogFragment();
-        dialog.show((getActivity()).getFragmentManager(), "DeveloperDialogFragment"); */
         return true;
       }
     });
@@ -161,7 +153,8 @@ public class SettingsFragment extends PreferenceFragment
   private void initializeVersionPreferenceClickListener() {
     versionPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
       public boolean onPreferenceClick(Preference versionPref) {
-        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(latestVersionUrl));
+        Intent intent = new Intent(Intent.ACTION_VIEW,
+            Uri.parse(getString(R.string.latest_release_url)));
         startActivity(intent);
 
         Log.d("ficsaveM/versionClick", versionPref.toString());
@@ -195,9 +188,6 @@ public class SettingsFragment extends PreferenceFragment
           case SEND_EMAIL_DEVICE_PREFERENCE:
             sendEmailDeviceSharedPreferenceChange(sharedPreferences);
             break;
-          case SEND_EMAIL_SITE_PREFERENCE:
-            sendEmailSiteSharedPreferenceChange(sharedPreferences);
-            break;
           case EMAIL_ADDRESS_TO_SEND_TO:
             emailAddressToSendToSharedPreferenceChange(sharedPreferences);
             break;
@@ -222,42 +212,22 @@ public class SettingsFragment extends PreferenceFragment
         return;
       }
 
-      final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-      builder.setTitle(INVALID_EMAIL);
-      builder.setMessage("Please enter a valid email address");
-      builder.setPositiveButton(android.R.string.ok, null);
-      builder.show();
+      showInvalidEmailAlert("Please enter a valid email address");
       sharedPreferences.edit().putString(EMAIL_ADDRESS_TO_SEND_TO, "").apply();
     } else if (emailAddress.isEmpty()) {
       sharedPreferences.edit().putBoolean(SEND_EMAIL_DEVICE_PREFERENCE, false).apply();
-      sharedPreferences.edit().putBoolean(SEND_EMAIL_SITE_PREFERENCE, false).apply();
-      emailAddressPref.setSummary(R.string.email_address_summary);
     } else {
       emailAddressPref.setSummary(emailAddress);
     }
   }
 
-  private void sendEmailSiteSharedPreferenceChange(SharedPreferences sharedPreferences) {
-    Boolean sendEmailFromSite = sharedPreferences.getBoolean(SEND_EMAIL_SITE_PREFERENCE, true);
-    if (sendEmailFromSite) {
-      String emailAddress = sharedPreferences.getString(EMAIL_ADDRESS_TO_SEND_TO, "");
-      if (!Patterns.EMAIL_ADDRESS.matcher(emailAddress).matches()) {
-        showInvalidEmailAlert();
-        sharedPreferences.edit().putBoolean(SEND_EMAIL_SITE_PREFERENCE, false).apply();
-      } else {
-        sharedPreferences.edit().putBoolean(DOWNLOAD_FILE_PREFERENCE, false).apply();
-        sharedPreferences.edit().putBoolean(OPEN_FILE_PREFERENCE, false).apply();
-        sharedPreferences.edit().putBoolean(SEND_EMAIL_DEVICE_PREFERENCE, false).apply();
-      }
-    } else {
-      sharedPreferences.edit().putBoolean(DOWNLOAD_FILE_PREFERENCE, true).apply();
+  private void showInvalidEmailAlert(String message) {
+    if (getActivity() == null) {
+      return;
     }
-  }
-
-  private void showInvalidEmailAlert() {
     final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
     builder.setTitle(INVALID_EMAIL);
-    builder.setMessage("Please enter a valid email address first!");
+    builder.setMessage(message);
     builder.setPositiveButton(android.R.string.ok, null);
     builder.show();
   }
@@ -267,7 +237,7 @@ public class SettingsFragment extends PreferenceFragment
     if (sendEmailFromDevice) {
       String emailAddress = sharedPreferences.getString(EMAIL_ADDRESS_TO_SEND_TO, "");
       if (!Patterns.EMAIL_ADDRESS.matcher(emailAddress).matches()) {
-        showInvalidEmailAlert();
+        showInvalidEmailAlert("Please enter a valid email address first!");
         sharedPreferences.edit().putBoolean(SEND_EMAIL_DEVICE_PREFERENCE, false).apply();
       } else {
         sharedPreferences.edit().putBoolean(OPEN_FILE_PREFERENCE, false).apply();
@@ -284,12 +254,9 @@ public class SettingsFragment extends PreferenceFragment
 
   private void downloadFileSharedPreferenceChange(SharedPreferences sharedPreferences) {
     Boolean downloadFileToDevice = sharedPreferences.getBoolean(DOWNLOAD_FILE_PREFERENCE, true);
-    if (downloadFileToDevice) {
-      sharedPreferences.edit().putBoolean(SEND_EMAIL_SITE_PREFERENCE, false).apply();
-    } else {
+    if (!downloadFileToDevice) {
       sharedPreferences.edit().putBoolean(OPEN_FILE_PREFERENCE, false).apply();
       sharedPreferences.edit().putBoolean(SEND_EMAIL_DEVICE_PREFERENCE, false).apply();
-      sharedPreferences.edit().putBoolean(SEND_EMAIL_SITE_PREFERENCE, true).apply();
     }
   }
 
@@ -297,25 +264,12 @@ public class SettingsFragment extends PreferenceFragment
   public void onResume() {
     super.onResume();
 
-    getPreferenceScreen().getSharedPreferences()
-        .registerOnSharedPreferenceChangeListener(listener);
+    prefs.registerOnSharedPreferenceChangeListener(listener);
   }
 
   @Override
   public void onPause() {
     super.onPause();
-    getPreferenceScreen().getSharedPreferences()
-        .unregisterOnSharedPreferenceChangeListener(listener);
-  }
-
-  @Override
-  public void onDialogPositiveClick(DialogFragment dialog) {
-    // empty
-  }
-
-  @Override
-  public void onDialogNegativeClick(DialogFragment dialog) {
-    // empty
+    prefs.unregisterOnSharedPreferenceChangeListener(listener);
   }
 }
-

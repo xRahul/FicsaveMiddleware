@@ -4,7 +4,7 @@
     <PreferenceCategory android:title="Settings">
 
         <ListPreference
-            android:defaultValue="mobi"
+            android:defaultValue="epub"
             android:entries="@array/FileTypes"
             android:entryValues="@array/FileTypesAlias"
             android:key="file_types_preference"
@@ -26,11 +26,6 @@
             android:key="send_email_device_preference"
             android:summary="@string/send_email_from_device_summary"
             android:title="@string/send_email_from_device" />
-        <SwitchPreference
-            android:defaultValue="false"
-            android:key="send_email_site_preference"
-            android:summary="@string/send_email_with_file_from_site_summary"
-            android:title="@string/send_email_with_file_from_site" />
         <EditTextPreference
             android:key="email_address_to_send_to"
             android:selectAllOnFocus="true"

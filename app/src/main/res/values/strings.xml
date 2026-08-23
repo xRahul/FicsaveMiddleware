@@ -22,8 +22,6 @@
     <string name="enter_email">Enter Email Address</string>
     <string name="file_action_list_preference">Default eBook Action</string>
     <string name="email_address_summary">Default email address to use for sending eBook</string>
-    <string name="send_email_with_file_from_site">Send eBook as email from ficsave</string>
-    <string name="send_email_with_file_from_site_summary">Send eBook as an email directly instead of downloading it</string>
     <string name="send_email_from_device">Send downloaded eBook as email</string>
     <string name="send_email_from_device_summary">Use your device mailer app to send the eBook as attachment</string>
     <string name="open_file">Open downloaded eBook</string>
