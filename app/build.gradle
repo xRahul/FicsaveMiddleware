@@ -1,18 +1,17 @@
 apply plugin: 'com.android.application'
-apply plugin: "org.sonarqube"
 
 android {
-  compileSdkVersion rootProject.ext.compileSdkVersion
+  namespace 'in.rahulja.ficsavemiddleware'
+  compileSdk rootProject.ext.compileSdkVersion
+
   defaultConfig {
     applicationId rootProject.ext.applicationId
-    minSdkVersion rootProject.ext.minSdkVersion
-    targetSdkVersion rootProject.ext.targetSdkVersion
+    minSdk rootProject.ext.minSdkVersion
+    targetSdk rootProject.ext.targetSdkVersion
     versionCode rootProject.ext.versionCode
     versionName rootProject.ext.versionName
     testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-    vectorDrawables.useSupportLibrary = true
     resConfigs "en"
-    return void
   }
   buildTypes {
     debug {
@@ -26,25 +25,43 @@ android {
       proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
     }
   }
-  return void
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_17
+    targetCompatibility JavaVersion.VERSION_17
+  }
+  buildFeatures {
+    buildConfig true
+  }
+  testOptions {
+    unitTests {
+      includeAndroidResources = true
+    }
+  }
 }
 
 dependencies {
   implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-  implementation 'androidx.appcompat:appcompat:1.1.0'
-  implementation 'com.google.android.material:material:1.2.0-alpha04'
-  implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-  implementation 'androidx.preference:preference:1.1.0'
-  implementation 'androidx.vectordrawable:vectordrawable:1.1.0'
-  implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+  constraints {
+    implementation('org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22') {
+      because 'merged into kotlin-stdlib since 1.8'
+    }
+    implementation('org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22') {
+      because 'merged into kotlin-stdlib since 1.8'
+    }
+  }
+
+  implementation 'androidx.appcompat:appcompat:1.7.0'
+  implementation 'androidx.preference:preference:1.2.1'
   implementation 'androidx.cardview:cardview:1.0.0'
 
-  testImplementation 'junit:junit:4.13'
-  androidTestImplementation 'androidx.annotation:annotation:1.1.0'
+  testImplementation 'junit:junit:4.13.2'
+  testImplementation 'org.robolectric:robolectric:4.14.1'
+
+  androidTestImplementation 'androidx.test.ext:junit:1.2.1'
   // AndroidJUnitRunner and JUnit Rules
-  androidTestImplementation 'androidx.test:runner:1.2.0'
-  androidTestImplementation 'androidx.test:rules:1.2.0'
+  androidTestImplementation 'androidx.test:runner:1.6.2'
+  androidTestImplementation 'androidx.test:rules:1.6.1'
   // Espresso dependencies
-  androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+  androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
 }

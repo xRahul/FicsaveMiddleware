@@ -1,23 +1,13 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
-buildscript {
-  repositories {
-    jcenter()
-    google()
-  }
-  dependencies {
-    classpath 'com.android.tools.build:gradle:3.5.3'
-    classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.8.0.1969"
-
-    // NOTE: Do not place your application dependencies here; they belong
-    // in the individual module build.gradle files
-  }
+plugins {
+  id 'com.android.application' version '8.7.3' apply false
 }
 
 allprojects {
   repositories {
-    jcenter()
     google()
+    mavenCentral()
   }
 }
 
@@ -29,12 +19,12 @@ task clean(type: Delete) {
 // modules in the project.
 ext {
   // The following are only a few examples of the types of properties you can define.
-  compileSdkVersion = 29
+  compileSdkVersion = 36
   // You can also create properties to specify versions for dependencies.
   // Having consistent versions between modules can avoid conflicts with behavior.
   minSdkVersion = 24
-  targetSdkVersion = 29
+  targetSdkVersion = 36
   applicationId = "in.rahulja.ficsavemiddleware"
-  versionCode = 274
-  versionName = "2.7.4"
+  versionCode = 300
+  versionName = "3.0.0"
 }
