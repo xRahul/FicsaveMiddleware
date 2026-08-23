@@ -1,37 +1,88 @@
-# FicsaveMiddleware
+# FicHub Middleware (formerly Ficsave Middleware)
 
-[![GitHub license](https://img.shields.io/github/license/xRahul/FicsaveMiddleware.svg)](https://github.com/xRahul/FicsaveMiddleware/blob/master/License.txt)
-[![Releases](https://img.shields.io/github/release/xRahul/FicsaveMiddleware.svg)](https://github.com/xRahul/FicsaveMiddleware/releases/latest)
-[![Build Status](https://travis-ci.org/xRahul/FicsaveMiddleware.svg?branch=master)](https://travis-ci.org/xRahul/FicsaveMiddleware)
-[![Dependabot](https://badgen.net/badge/Dependabot/enabled/green?icon=dependabot)](https://dependabot.com/)
-[![libraries.io](https://img.shields.io/librariesio/github/xRahul/FicsaveMiddleware.svg)](https://libraries.io/github/xRahul/FicsaveMiddleware)
+[![CI](https://github.com/xRahul/FicsaveMiddleware/actions/workflows/ci.yml/badge.svg)](https://github.com/xRahul/FicsaveMiddleware/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/release/xRahul/FicsaveMiddleware.svg)](https://github.com/xRahul/FicsaveMiddleware/releases/latest)
+[![License](https://img.shields.io/github/license/xRahul/FicsaveMiddleware.svg)](https://github.com/xRahul/FicsaveMiddleware/blob/master/License.txt)
 
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/656060bf06df488ab62d12c5814ec024)](https://www.codacy.com/app/xRahul/FicsaveMiddleware)
-[![CodeClimate Maintainability](https://api.codeclimate.com/v1/badges/9cb40490a0f78716af81/maintainability)](https://codeclimate.com/github/xRahul/FicsaveMiddleware/maintainability)
-[![CodeFactor](https://www.codefactor.io/repository/github/xrahul/ficsavemiddleware/badge)](https://www.codefactor.io/repository/github/xrahul/ficsavemiddleware)
-[![codebeat badge](https://codebeat.co/badges/404e0219-40d8-4bbe-9952-3e38f66d9dc7)](https://codebeat.co/projects/github-com-xrahul-ficsavemiddleware-master)
+## What it does
 
-[![SonarCloud Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=FicsaveMiddleware%3Aapp&metric=alert_status)](https://sonarcloud.io/dashboard?id=FicsaveMiddleware%3Aapp)
-[![SonarCloud Bugs](https://sonarcloud.io/api/project_badges/measure?project=FicsaveMiddleware%3Aapp&metric=bugs)](https://sonarcloud.io/dashboard?id=FicsaveMiddleware%3Aapp)
-[![SonarCloud Maintainability](https://sonarcloud.io/api/project_badges/measure?project=FicsaveMiddleware%3Aapp&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=FicsaveMiddleware%3Aapp)
-[![SonarCloud Security](https://sonarcloud.io/api/project_badges/measure?project=FicsaveMiddleware%3Aapp&metric=security_rating)](https://sonarcloud.io/dashboard?id=FicsaveMiddleware%3Aapp)
-[![SonarCloud Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=FicsaveMiddleware%3Aapp&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=FicsaveMiddleware%3Aapp)
+This app is a WebView wrapper around [FicHub](https://fichub.net/), the successor to the now-defunct ficsave.xyz. Opening the website, entering the URL, and choosing options gets tedious after your 100th fic — this app automates the flow:
 
+1. Share any fanfiction URL with the app.
+2. The app loads `https://fichub.net/?b=1&q=<url>` and FicHub exports the story.
+3. FicHub produces an EPUB/MOBI/PDF/Zipped HTML file which is downloaded via the Android DownloadManager into your `Documents/` folder.
+4. You tap the download link (or the default-format auto-click handles it).
 
-This is a wrapper around the ficsave.xyz website. 
-Opening the website, entering the url, choosing options can become tedious after you've read your 100th fic.
+Current version: 3.0.0. Supports Android 7.0+ (minSdk 24), built against Android 16 (SDK 36).
 
-This app supports Android Marshmallow (6.0+) and is compiled and tested against Android Q (10).
+## Features
 
+* Share-intent auto-export: share a fic URL from any browser or app.
+* Deep link support for `https://fichub.net`.
+* Default eBook format preference: EPUB, MOBI, PDF, or Zipped HTML.
+* Downloads land in `Documents/` via the system DownloadManager.
+* Option to open the downloaded eBook automatically after download.
+* Send the eBook as an email attachment directly from the device.
+* Download history screen.
+* Terms screen.
+* In-app version check against GitHub releases.
 
-## Current Features
-* Share fic url with the app to automate what happens.
-* choose a default eBook format for further actions.
-* Download ebook to device or send as attachment directly from ficsave website.
-* Open downloaded eBook by default, or send as attachment via your email app to someone.
-* Added deep link to ficsave.xyz
-* Download History can be seen
+## Supported sites
+
+Per [fichub.net](https://fichub.net/):
+
+* SpaceBattles, SufficientVelocity, QuestionableQuesting (XenForo)
+* FanFiction.net
+* FictionPress
+* Archive Of Our Own (AO3)
+* Harry Potter Fanfic Archive (HPFA)
+* Sink Into Your Eyes (SIYE)
+* AdultFanfiction.org
+* Worm / Ward (+ partial list of other sites)
 
 ## Screenshots
 
-![Screens](https://github.com/xRahul/FicsaveMiddleware/raw/master/Screenshots/screens.jpg) 
+![Screens](https://github.com/xRahul/FicsaveMiddleware/raw/master/Screenshots/screens.jpg)
+
+## Build & Test
+
+Requirements:
+
+* JDK 17
+* Android SDK 36
+
+```sh
+./gradlew assembleDebug
+./gradlew testDebugUnitTest lintDebug
+```
+
+Note on package names: the applicationId remains `in.rahulja.ficsavemiddleware` so existing installs can update in place without losing data; the source code lives under the new package `in.rahulja.fichubmiddleware`.
+
+## CI & Releases
+
+GitHub Actions runs build + unit tests + lint on every push to `master` and on all pull requests (`.github/workflows/ci.yml`). Pushing a tag matching `v*` builds a signed APK and attaches it to a GitHub Release (`.github/workflows/release.yml`).
+
+Signing requires these repository secrets:
+
+| Secret | Purpose |
+| --- | --- |
+| `KEYSTORE_BASE64` | Base64-encoded keystore (decoded to `app/keystore.jks` by the workflow) |
+| `SIGNING_STORE_PASSWORD` | Keystore password |
+| `SIGNING_KEY_ALIAS` | Signing key alias |
+| `SIGNING_KEY_PASSWORD` | Signing key password |
+
+## Privacy
+
+The app has no analytics and collects nothing. Story URLs you share are sent to fichub.net to generate the eBook; downloads are stored locally on your device.
+
+## Credits
+
+* Original ficsave.xyz app by [waylaidwanderer](https://github.com/waylaidwanderer).
+* Export backend by [FicHub](https://github.com/FicHub/fichub.net).
+* This app by [xRahul](https://github.com/xRahul).
+
+Renaming this GitHub repository is an optional owner action; badges and links here assume the current slug `xRahul/FicsaveMiddleware`.
+
+## License
+
+[Apache License 2.0](License.txt)
