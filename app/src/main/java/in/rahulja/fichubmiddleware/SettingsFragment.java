@@ -92,8 +92,10 @@ public class SettingsFragment extends PreferenceFragmentCompat {
               responseBody.append(line);
             }
           }
-          String latestVersion =
+          String latestTag =
               new JSONObject(responseBody.toString()).getString("tag_name");
+          String latestVersion =
+              latestTag.startsWith("v") ? latestTag.substring(1) : latestTag;
           Log.d("ficsaveM/updateUrl", latestVersion);
           boolean isLatest = latestVersion.equals(BuildConfig.VERSION_NAME);
 

@@ -212,6 +212,7 @@ public class MainActivity extends AppCompatActivity {
       String currentUrl = webView.getUrl();
       if (urlToLoad.equals(currentUrl)) {
         Log.d(TAG + "/load", "already on " + urlToLoad + ", skipping reload");
+        maybeInjectAutoClickJs(webView);
       } else {
         Log.d(TAG + "/load", urlToLoad);
         webView.loadUrl(urlToLoad);
