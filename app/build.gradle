@@ -13,6 +13,16 @@ android {
     testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     resourceConfigurations += ["en"]
   }
+  signingConfigs {
+    release {
+      if (System.getenv('KEYSTORE_FILE')) {
+        storeFile file(System.getenv('KEYSTORE_FILE'))
+        storePassword System.getenv('SIGNING_STORE_PASSWORD')
+        keyAlias System.getenv('SIGNING_KEY_ALIAS')
+        keyPassword System.getenv('SIGNING_KEY_PASSWORD')
+      }
+    }
+  }
   buildTypes {
     debug {
       shrinkResources false
@@ -23,6 +33,9 @@ android {
       shrinkResources true
       minifyEnabled true
       proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+      if (System.getenv('KEYSTORE_FILE')) {
+        signingConfig signingConfigs.release
+      }
     }
   }
   compileOptions {
