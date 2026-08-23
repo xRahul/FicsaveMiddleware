@@ -25,4 +25,5 @@ docs/superpowers/
 Screenshots/
 
 # Eclipse/JDT IDE artifacts
-*.classpath
+.classpath
+.kotlin/
