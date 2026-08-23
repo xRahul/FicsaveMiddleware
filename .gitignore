@@ -12,7 +12,10 @@ app/google-services.json
 /.idea/sonarIssues.xml
 .idea/sonarlint/*
 .idea/caches/
-.idea/shelf/.idea/
+.idea/shelf/
+.idea/
+.project
+.settings/
 local.properties
 build/
 .codegraph/
