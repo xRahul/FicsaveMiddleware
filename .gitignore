@@ -27,3 +27,13 @@ Screenshots/
 # Eclipse/JDT IDE artifacts
 .classpath
 .kotlin/
+
+# Signing material, diagnostics, editors, OS/AI noise
+*.keystore
+keystore.properties
+*.hprof
+*.log
+.vscode/
+.fleet/
+Thumbs.db
+.superpowers/
