@@ -8,6 +8,7 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     permissions:
       contents: write
     env:
@@ -25,6 +26,9 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v6
 
+      - name: Unit tests
+        run: ./gradlew testDebugUnitTest --stacktrace
+
       - name: Decode keystore
         if: env.KEYSTORE_BASE64 != ''
         run: echo "$KEYSTORE_BASE64" | base64 --decode > app/keystore.jks
@@ -37,6 +41,16 @@ jobs:
           SIGNING_STORE_PASSWORD: ''
           SIGNING_KEY_ALIAS: ''
           SIGNING_KEY_PASSWORD: ''
+
+      - name: Warn about missing signing secrets
+        if: env.KEYSTORE_BASE64 == ''
+        run: |
+          echo "::warning::Signing secrets are not configured - APK was built UNSIGNED and was NOT uploaded to the release."
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ## Release asset skipped
+          Signing secrets (`KEYSTORE_BASE64`, `SIGNING_STORE_PASSWORD`, `SIGNING_KEY_ALIAS`, `SIGNING_KEY_PASSWORD`) are not configured, so the APK was built unsigned and **not uploaded**.
+          Configure the secrets and re-run to publish a signed APK.
+          EOF
 
       - name: Build signed APK
         if: env.KEYSTORE_BASE64 != ''
