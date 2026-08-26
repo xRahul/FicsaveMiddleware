@@ -13,6 +13,9 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import android.util.Log;
 import android.util.Patterns;
 import android.view.Menu;
@@ -57,6 +60,20 @@ public class MainActivity extends AppCompatActivity {
     Toolbar toolbar = findViewById(R.id.tool_bar);
     // Setting toolbar as the ActionBar with setSupportActionBar() call
     setSupportActionBar(toolbar);
+
+    ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.activity_main), (v, windowInsets) -> {
+      Insets insets = windowInsets.getInsets(
+          WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout());
+      if (toolbar != null) {
+        toolbar.setPadding(
+            toolbar.getPaddingLeft(),
+            insets.top,
+            toolbar.getPaddingRight(),
+            toolbar.getPaddingBottom());
+      }
+      v.setPadding(insets.left, 0, insets.right, insets.bottom);
+      return windowInsets;
+    });
 
     prepare();
   }

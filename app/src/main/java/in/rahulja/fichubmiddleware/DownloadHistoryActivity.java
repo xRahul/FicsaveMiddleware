@@ -1,8 +1,12 @@
 package in.rahulja.fichubmiddleware;
 
 import android.os.Bundle;
+import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -19,6 +23,21 @@ public class DownloadHistoryActivity extends AppCompatActivity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_download_history);
     listView = findViewById(R.id.history_list_view);
+
+    ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.activity_download_history), (v, windowInsets) -> {
+      Insets insets = windowInsets.getInsets(
+          WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout());
+      View toolbarView = findViewById(R.id.download_history_toolbar);
+      if (toolbarView != null) {
+        toolbarView.setPadding(
+            toolbarView.getPaddingLeft(),
+            insets.top,
+            toolbarView.getPaddingRight(),
+            toolbarView.getPaddingBottom());
+      }
+      v.setPadding(insets.left, 0, insets.right, insets.bottom);
+      return windowInsets;
+    });
   }
 
   @Override
